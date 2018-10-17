@@ -1,0 +1,12 @@
+name: dsvl
+
+server:
+  port: 4500
+
+bootstrap-server:
+  address: 127.0.0.1
+  port: 55555
+
+logging:
+  level:
+    com.dsvl: debug
