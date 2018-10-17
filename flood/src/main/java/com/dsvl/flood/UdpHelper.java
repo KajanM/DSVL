@@ -11,12 +11,11 @@ import java.net.InetAddress;
 
 /**
  * Helper class for UDP related actions
- * @see #sendMessage(String, InetAddress, int)
- * @see #receiveMessage()
+ *
+ * @see #sendMessage(String, InetAddress, int, int)
+ * @see #receiveMessage(int)
  */
 public class UdpHelper {
-
-    public static final Integer UDP_PORT = 55554;
 
     private static final Logger logger = LoggerFactory.getLogger(UdpHelper.class);
 
@@ -28,10 +27,10 @@ public class UdpHelper {
      * @param destinationPort
      * @return whether the action was succeeded or not
      */
-    public static Boolean sendMessage(@NotNull String message, @NotNull InetAddress destinationAddress, @NotNull int destinationPort) {
+    public static Boolean sendMessage(@NotNull String message, @NotNull InetAddress destinationAddress, @NotNull int destinationPort, @NotNull int nodePort) {
         byte[] buf = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, destinationAddress, destinationPort);
-        try (DatagramSocket socket = new DatagramSocket(UDP_PORT)) {
+        try (DatagramSocket socket = new DatagramSocket(nodePort)) {
             socket.send(packet);
             logger.info("Sent UDP message to {}:{} {}", packet.getAddress().getHostAddress(), packet.getPort(), message);
         } catch (IOException e) {
@@ -47,12 +46,12 @@ public class UdpHelper {
      *
      * @return the received DatagramPacket
      */
-    public static DatagramPacket receiveMessage() {
+    public static DatagramPacket receiveMessage(@NotNull int nodePort) {
         byte[] response = new byte[65536];
 
         DatagramPacket packet = new DatagramPacket(response, response.length);
 
-        try (DatagramSocket socket = new DatagramSocket(UDP_PORT)) {
+        try (DatagramSocket socket = new DatagramSocket(nodePort)) {
             socket.receive(packet);
             String receivedData = new String(packet.getData(), 0, packet.getLength());
             logger.info("Received UDP message from {}:{} {}", packet.getAddress().getHostAddress(), packet.getPort(), receivedData);

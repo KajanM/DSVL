@@ -10,7 +10,6 @@ import java.net.InetAddress;
 import java.util.StringJoiner;
 
 import static com.dsvl.flood.Constants.Protocol.REG;
-import static com.dsvl.flood.UdpHelper.UDP_PORT;
 
 @Service
 public class RegisterServiceImpl implements RegisterService {
@@ -20,21 +19,21 @@ public class RegisterServiceImpl implements RegisterService {
     @Override
     public Boolean register(InetAddress bootstrapAddress, InetAddress nodeAddress, Integer bootstrapServerPort, Integer nodePort, String username) {
 
-        int length = nodeAddress.getHostAddress().length() + UDP_PORT.toString().length() + username.length() + 7;
+        int length = nodeAddress.getHostAddress().length() + nodePort.toString().length() + username.length() + 7;
 
         StringJoiner msgBuilder = new StringJoiner(" ");
         msgBuilder.add(String.format("%04d", length))
                 .add(REG.name())
                 .add(nodeAddress.getHostAddress())
-                .add(UDP_PORT.toString())
+                .add(nodePort.toString())
                 .add(username);
 
-        if (!UdpHelper.sendMessage(msgBuilder.toString(), bootstrapAddress, bootstrapServerPort)) {
+        if (!UdpHelper.sendMessage(msgBuilder.toString(), bootstrapAddress, bootstrapServerPort, nodePort)) {
             logger.warn("Registering with the bootstrap server failed");
             return false;
         }
 
-        if (UdpHelper.receiveMessage() != null) {
+        if (UdpHelper.receiveMessage(nodePort) != null) {
             logger.info("Successfully registered with the bootstrap server");
             return true;
         }

@@ -28,57 +28,38 @@ public class Node {
 
     private static final Logger logger = LoggerFactory.getLogger(Node.class);
 
-    @Value("${bootstrap-server.address}")
-    private String bootstrapServerIpValue;
-
-    @Value("${bootstrap-server.port}")
-    private int bootstrapServerPort;
-
-    // TODO: make the node's port a random value
-    private int nodePort = 45555;
-
-    @Value("${name}")
-    private String name;
+    private final int bootstrapServerPort;
+    private final int nodePort;
+    private final String name;
 
     /**
      * The IP address of the {@code Node}.
-     * Lazily initialized by {@link #getNodeAddress()}
+     * Eagerly initialized}
      */
-    private InetAddress nodeAddress;
+    private final InetAddress nodeAddress;
 
     /**
      * The IP address of the bootstrap server.
-     * Lazily initialized by {@link #getBootstrapServerAddress()}
+     * Eagerly initialized}
      */
-    private InetAddress bootstrapServerAddress;
+    private final InetAddress bootstrapServerAddress;
 
     @Autowired
     private RegisterService registerService;
 
-    public Node() {
+    @Autowired
+    public Node(@Value("${bootstrap-server.address}") String bsIpValue, @Value("${bootstrap-server.port}") int bsPort, @Value("${name}") String name) throws UnknownHostException {
+        bootstrapServerPort = bsPort;
+        this.name = name;
+
+        bootstrapServerAddress = InetAddress.getByName(bsIpValue);
+        nodeAddress = InetAddress.getByName("localhost");
+
+        // TODO: make the node's port a random value
+        nodePort = 45555;
     }
 
     public boolean register() {
-        try {
-            return registerService.register(getBootstrapServerAddress(), getNodeAddress(), bootstrapServerPort, nodePort, name);
-        } catch (UnknownHostException e) {
-            logger.error("Failed creating InetAddresses", e);
-            return false;
-        }
-    }
-
-    public InetAddress getNodeAddress() throws UnknownHostException {
-        if (nodeAddress == null) {
-            // TODO: node address is always 127.0.0.1, this behavior should be changed
-            nodeAddress = InetAddress.getByName("localhost");
-        }
-        return nodeAddress;
-    }
-
-    public InetAddress getBootstrapServerAddress() throws UnknownHostException {
-        if (bootstrapServerAddress == null) {
-            bootstrapServerAddress = InetAddress.getByName(bootstrapServerIpValue);
-        }
-        return bootstrapServerAddress;
+        return registerService.register(bootstrapServerAddress, nodeAddress, bootstrapServerPort, nodePort, name);
     }
 }
