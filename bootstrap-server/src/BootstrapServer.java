@@ -83,6 +83,7 @@ public class BootstrapServer {
 
                     DatagramPacket dpReply = new DatagramPacket(reply.getBytes() , reply.getBytes().length , incoming.getAddress() , incoming.getPort());
                     sock.send(dpReply);
+                    echo("Message sent: " + reply + " to: " + dpReply.getAddress() + ":" + dpReply.getPort());
                 } else if (command.equals("UNREG")) {
                     String ip = st.nextToken();
                     int port = Integer.parseInt(st.nextToken());
@@ -102,6 +103,8 @@ public class BootstrapServer {
                     String reply = "0012 ECHOK 0";
                     DatagramPacket dpReply = new DatagramPacket(reply.getBytes() , reply.getBytes().length , incoming.getAddress() , incoming.getPort());
                     sock.send(dpReply);
+                } else {
+                    echo("unsupported command");
                 }
 
             }
