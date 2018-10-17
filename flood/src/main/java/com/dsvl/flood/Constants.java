@@ -4,6 +4,7 @@ public class Constants {
 
     public enum Protocol {
         REG,
-        UNREG;
+        UNREG,
+        SER
     }
 }

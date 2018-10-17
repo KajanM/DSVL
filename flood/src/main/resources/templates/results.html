@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Results</title>
+</head>
+<body>
+    <div th:each="result : ${results}">
+        <p th:text="${result.fileName}">Lord of the rings</p>
+    </div>
+</body>
+</html>
