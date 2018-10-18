@@ -2,7 +2,7 @@ package com.dsvl.flood;
 
 public class Constants {
 
-    public enum Protocol {
+    public enum UdpMsgType {
         REG,
         UNREG,
         SER

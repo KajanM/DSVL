@@ -3,33 +3,22 @@ package com.dsvl.flood.service.impl;
 import com.dsvl.flood.File;
 import com.dsvl.flood.Neighbour;
 import com.dsvl.flood.UdpHelper;
+import com.dsvl.flood.UdpMsgBuilder;
 import com.dsvl.flood.service.SearchService;
 import org.springframework.stereotype.Service;
 
 import java.net.InetAddress;
 import java.util.List;
-import java.util.StringJoiner;
-
-import static com.dsvl.flood.Constants.Protocol.SER;
 
 @Service
 public class SearchServiceImpl implements SearchService {
 
     @Override
-    public  List<File> search(String fileName, List<Neighbour> neighbours, InetAddress nodeAddress, Integer nodeTcpPort) {
-        // length SER IP port file_name hops
-
-        int length = 4 + 1 + 3 + 1 + nodeAddress.getHostAddress().length() + 1 + nodeTcpPort.toString().length() + 1 + fileName.length() + 1 + 1;
-        // TODO: kajan, this logic can be separated out for reusability
-        StringJoiner searchMessage = new StringJoiner(" ");
-        searchMessage.add(String.format("%04d", length))
-                .add(SER.name())
-                .add(nodeAddress.getHostAddress())
-                .add(nodeTcpPort.toString())
-                .add(fileName)
-                .add("0");
+    public List<File> search(String fileName, List<Neighbour> neighbours, InetAddress nodeAddress, Integer nodeTcpPort) {
+        String searchMsg = UdpMsgBuilder.buildSearchMsg(nodeAddress.getHostAddress(), nodeTcpPort, fileName, 0);
         neighbours.stream()
-                .forEach((neighbour) -> UdpHelper.sendMessage(searchMessage.toString(), neighbour.getAddress(), neighbour.getPort()));
+                .forEach((neighbour) -> UdpHelper.sendMessage(searchMsg, neighbour.getAddress(), neighbour.getPort()));
+        // TODO: kajan, UDP seraching should be fire and forget, so do not return anything here
         return null;
     }
 }
