@@ -19,6 +19,7 @@ public class RegisterServiceImpl implements RegisterService {
     @Override
     public Boolean register(InetAddress bootstrapAddress, InetAddress nodeAddress, Integer bootstrapServerPort, Integer nodePort, String username) {
 
+        // TODO: kajan, the calculation seems wrong, fix this
         int length = nodeAddress.getHostAddress().length() + nodePort.toString().length() + username.length() + 7;
 
         StringJoiner msgBuilder = new StringJoiner(" ");
