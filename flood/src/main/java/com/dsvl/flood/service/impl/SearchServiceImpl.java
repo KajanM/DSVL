@@ -16,16 +16,16 @@ import static com.dsvl.flood.Constants.Protocol.SER;
 public class SearchServiceImpl implements SearchService {
 
     @Override
-    public  List<File> search(String fileName, List<Neighbour> neighbours, InetAddress nodeAddress, Integer nodePort) {
+    public  List<File> search(String fileName, List<Neighbour> neighbours, InetAddress nodeAddress, Integer nodeTcpPort) {
         // length SER IP port file_name hops
 
-        int length = 4 + 1 + 3 + 1 + nodeAddress.getHostAddress().length() + 1 + nodePort.toString().length() + 1 + fileName.length() + 1 + 1;
+        int length = 4 + 1 + 3 + 1 + nodeAddress.getHostAddress().length() + 1 + nodeTcpPort.toString().length() + 1 + fileName.length() + 1 + 1;
         // TODO: kajan, this logic can be separated out for reusability
         StringJoiner searchMessage = new StringJoiner(" ");
         searchMessage.add(String.format("%04d", length))
                 .add(SER.name())
                 .add(nodeAddress.getHostAddress())
-                .add(nodePort.toString())
+                .add(nodeTcpPort.toString())
                 .add(fileName)
                 .add("0");
         neighbours.stream()

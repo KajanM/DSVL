@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface SearchService {
 
-    List<File> search(String fileName, List<Neighbour> neighbours, InetAddress nodeAddress, Integer nodePort);
+    List<File> search(String fileName, List<Neighbour> neighbours, InetAddress nodeAddress, Integer nodeTcpPort);
 }

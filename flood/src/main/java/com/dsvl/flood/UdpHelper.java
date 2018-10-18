@@ -50,7 +50,7 @@ public class UdpHelper {
      * @param nodePort
      * @return whether the action was succeeded or not
      */
-    public static Boolean sendMessage(@NotNull String message, @NotNull InetAddress destinationAddress, @NotNull int destinationPort, Integer nodePort) {
+    public static Boolean sendMessage(@NotNull String message, @NotNull InetAddress destinationAddress, @NotNull int destinationPort, @NotNull Integer nodePort) {
         byte[] buf = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, destinationAddress, destinationPort);
         try (DatagramSocket socket = new DatagramSocket(nodePort)) {
