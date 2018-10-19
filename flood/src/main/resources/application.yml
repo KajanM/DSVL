@@ -3,6 +3,9 @@ name: dsvl
 server:
   port: 4500
 
+node:
+  port: 45555
+
 bootstrap-server:
   address: 127.0.0.1
   port: 55555
