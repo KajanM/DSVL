@@ -24,7 +24,7 @@ public class RegisterServiceImpl implements RegisterService {
             return false;
         }
 
-        if (UdpHelper.receiveMessage(nodePort) != null) {
+        if (UdpHelper.receiveMessage(nodePort, 2000) != null) {
             logger.info("Successfully registered with the bootstrap server");
             return true;
         }
