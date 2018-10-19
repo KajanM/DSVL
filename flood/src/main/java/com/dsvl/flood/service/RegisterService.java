@@ -10,10 +10,10 @@ public interface RegisterService {
      * @param bootstrapAddress
      * @param nodeAddress
      * @param bootstrapServerPort
-     * @param nodePort
+     * @param nodeUdpPort
      * @param username
      * @return  whether the registration is successful or not
      */
-    Boolean register(InetAddress bootstrapAddress, InetAddress nodeAddress, Integer bootstrapServerPort, Integer nodePort, String username);
+    Boolean register(InetAddress bootstrapAddress, InetAddress nodeAddress, Integer bootstrapServerPort, Integer nodeUdpPort, String username);
 
 }

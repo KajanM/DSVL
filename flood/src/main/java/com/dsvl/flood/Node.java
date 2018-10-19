@@ -37,14 +37,20 @@ public class Node {
     private final int nodeTcpPort;
 
     /**
+     * {@code Boolean} value indicating if this {@code Nods} is registered
+     * with the bootstrap server or not.
+     */
+    private Boolean isRegistered = false;
+
+    /**
      * The IP address of the {@code Node}.
-     * Eagerly initialized}
+     * Eagerly initialized
      */
     private final InetAddress nodeAddress;
 
     /**
      * The IP address of the bootstrap server.
-     * Eagerly initialized}
+     * Eagerly initialized
      */
     private final InetAddress bootstrapServerAddress;
 
@@ -88,7 +94,8 @@ public class Node {
     }
 
     public boolean register() {
-        return registerService.register(bootstrapServerAddress, nodeAddress, bootstrapServerPort, nodeUdpPort, name);
+        isRegistered = registerService.register(bootstrapServerAddress, nodeAddress, bootstrapServerPort, nodeUdpPort, name);
+        return isRegistered;
     }
 
     public List<File> search(String fileName) {
@@ -108,5 +115,17 @@ public class Node {
                 .filter((file) -> file.getFileName().contains(fileName))
                 .forEach(results::add);
         return  results;
+    }
+
+    public Boolean isRegistered() {
+        return isRegistered;
+    }
+
+    public Integer getNodeUdpPort() {
+        return nodeUdpPort;
+    }
+
+    public void setRegistered(Boolean isRegistered) {
+        this.isRegistered = isRegistered;
     }
 }
