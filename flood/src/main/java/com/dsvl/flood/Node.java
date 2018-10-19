@@ -32,7 +32,7 @@ public class Node {
     private static final Logger logger = LoggerFactory.getLogger(Node.class);
 
     private final int bootstrapServerPort;
-    private final int nodePort;
+    private final int nodeUdpPort;
     private final String name;
     private final int nodeTcpPort;
 
@@ -62,7 +62,7 @@ public class Node {
     private SearchService searchService;
 
     @Autowired
-    public Node(@Value("${bootstrap-server.address}") String bsIpValue, @Value("${bootstrap-server.port}") int bsPort, @Value("${name}") String name, @Value("${server.port}") int nodeTcpPort) throws UnknownHostException {
+    public Node(@Value("${bootstrap-server.address}") String bsIpValue, @Value("${bootstrap-server.port}") int bsPort, @Value("${name}") String name, @Value("${server.port}") int nodeTcpPort, @Value("${node.port}") int nodeUdpPort) throws UnknownHostException {
         bootstrapServerPort = bsPort;
         this.name = name;
         this.nodeTcpPort = nodeTcpPort;
@@ -71,7 +71,7 @@ public class Node {
         nodeAddress = InetAddress.getByName("localhost");
 
         // TODO: make the node's port a random value
-        nodePort = 45555;
+        this.nodeUdpPort = nodeUdpPort;
 
         files = new ArrayList<>();
         initializeFiles();
@@ -88,7 +88,7 @@ public class Node {
     }
 
     public boolean register() {
-        return registerService.register(bootstrapServerAddress, nodeAddress, bootstrapServerPort, nodePort, name);
+        return registerService.register(bootstrapServerAddress, nodeAddress, bootstrapServerPort, nodeUdpPort, name);
     }
 
     public List<File> search(String fileName) {
