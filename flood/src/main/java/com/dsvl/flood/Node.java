@@ -38,13 +38,13 @@ public class Node {
 
     /**
      * The IP address of the {@code Node}.
-     * Eagerly initialized}
+     * Eagerly initialized
      */
     private final InetAddress nodeAddress;
 
     /**
      * The IP address of the bootstrap server.
-     * Eagerly initialized}
+     * Eagerly initialized
      */
     private final InetAddress bootstrapServerAddress;
 
