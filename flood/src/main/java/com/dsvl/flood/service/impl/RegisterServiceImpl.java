@@ -15,16 +15,17 @@ public class RegisterServiceImpl implements RegisterService {
     private static final Logger logger = LoggerFactory.getLogger(RegisterServiceImpl.class);
 
     @Override
-    public Boolean register(InetAddress bootstrapAddress, InetAddress nodeAddress, Integer bootstrapServerPort, Integer nodePort, String username) {
+    public Boolean register(InetAddress bootstrapAddress, InetAddress nodeAddress, Integer bootstrapServerPort, Integer nodeUdpPort, String username) {
 
-        String regMsg = UdpMsgBuilder.buildRegisterMsg(nodeAddress.getHostAddress(), nodePort, username);
+        String regMsg = UdpMsgBuilder.buildRegisterMsg(nodeAddress.getHostAddress(), nodeUdpPort, username);
 
-        if (!UdpHelper.sendMessage(regMsg, bootstrapAddress, bootstrapServerPort, nodePort)) {
+        if (!UdpHelper.sendMessage(regMsg, bootstrapAddress, bootstrapServerPort, nodeUdpPort)) {
             logger.warn("Registering with the bootstrap server failed");
             return false;
         }
 
-        if (UdpHelper.receiveMessage(nodePort, 2000) != null) {
+        if (UdpHelper.receiveMessage(nodeUdpPort, 2000) != null) {
+            // TODO: Subhashini, REGOK specific implementation should go here
             logger.info("Successfully registered with the bootstrap server");
             return true;
         }
