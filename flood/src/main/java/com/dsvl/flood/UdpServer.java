@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This {@code Component} starts with the application and attempts
@@ -44,6 +46,24 @@ public class UdpServer implements CommandLineRunner {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 //ignore
+            }
+        }
+
+        //try to join the network 10 times and give up
+        List<Neighbour> availablePeers = new ArrayList<>(); //TODO: replace with bootstrap server response
+        for (int i=10; i>-1; i--) {
+            logger.info("Attempting to connect to the network: trial {}", i);
+            if (node.joinNetwork(availablePeers)) break;
+
+            // TODO: instead of sleeping for fixed 5 seconds apply some incremental logic
+            logger.info("Sleeping for 5 seconds");
+            try {
+                Thread.sleep(20000); //TODO: change this after receiving from bootstrap server is complete
+            } catch (InterruptedException e) {
+                //ignore
+            }
+            if(i ==0) {
+                logger.error("Unable to connect to the network");
             }
         }
 

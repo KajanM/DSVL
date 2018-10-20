@@ -15,6 +15,11 @@ public class UdpMsgBuilder {
     private static final String REGISTER_MSG_TEMPLATE = "{0} REG {1} {2,number,#} {3}";
 
     /**
+     * length JOIN IP_address port_no
+     */
+    private static final String JOIN_MSG_TEMPLATE = "{0} JOIN {1} {2,number,#}";
+
+    /**
      * Returns a {@code String} of the format {@code length SER IP port file_name hops}
      *
      * @param nodeAddress
@@ -54,6 +59,25 @@ public class UdpMsgBuilder {
         int length = 11 + nodeAddress.length() + nodeUdpPort.toString().length() + username.length();
 
         return MessageFormat.format(REGISTER_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort, username);
+    }
+
+    /**
+     * Returns a {@code String} of the format {@code length JOIN IP_address port_no}
+     * @param nodeAddress
+     * @param nodeUdpPort
+     * @return the join message
+     */
+    public static String buildJoinMsg(String nodeAddress, Integer nodeUdpPort) {
+        /*
+         * 4 - length
+         * 3 - spaces
+         * 4 - JOIN
+         * __
+         * 11
+         * */
+        int length = 11 + nodeAddress.length() + nodeUdpPort.toString().length();
+
+        return MessageFormat.format(JOIN_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort);
     }
 
 }

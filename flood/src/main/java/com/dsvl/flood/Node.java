@@ -1,5 +1,6 @@
 package com.dsvl.flood;
 
+import com.dsvl.flood.service.JoinService;
 import com.dsvl.flood.service.RegisterService;
 import com.dsvl.flood.service.SearchService;
 import org.slf4j.Logger;
@@ -43,6 +44,12 @@ public class Node {
     private Boolean isRegistered = false;
 
     /**
+     * {@code Boolean} value indicating if this {@code Nods} is connected
+     * to the network or not.
+     */
+    private Boolean connected = false;
+
+    /**
      * The IP address of the {@code Node}.
      * Eagerly initialized
      */
@@ -59,11 +66,21 @@ public class Node {
      */
     private final List<File> files;
 
+    /**
+     * List of neighbours that exists in the network but this {@code Node} has not directly connected to
+     */
     private final List<Neighbour> existingNodes;
+
+    /**
+     * List of neighbours that this {@code Node} has directly connected to
+     */
     private final List<Neighbour> neighbours;
 
     @Autowired
     private RegisterService registerService;
+
+    @Autowired
+    private JoinService joinService;
 
     @Autowired
     private SearchService searchService;
@@ -99,6 +116,34 @@ public class Node {
         isRegistered = registerService.register(bootstrapServerAddress, bootstrapServerPort, nodeAddress, nodeUdpPort,
                 name, existingNodes);
         return isRegistered;
+    }
+
+    public boolean joinNetwork(List<Neighbour> existingPeers) {
+        List<Neighbour> peers = new ArrayList<>();
+        peers.addAll(existingPeers);
+
+        /*
+        * Tries to connect to a random peer, if successful removes from the local list
+        */
+        while (!peers.isEmpty()) {
+            int peerIndex  = (int)(Math.random() * peers.size()); // 0 <= peerIndex < (neighbour list length)
+            Neighbour peer = peers.get(peerIndex);
+            boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, nodeUdpPort);
+            if (joinSuccessful) {
+                neighbours.add(peer);
+            } else {
+                peers.remove(peerIndex);
+            }
+            if (neighbours.size() > 1){
+                logger.info("Successfully joined the network");
+                return true;
+            }
+        }
+        if (neighbours.size() == 1) {
+            logger.warn("Joined the network via only one peer");
+            return true;
+        }
+        return false;
     }
 
     public List<File> search(String fileName) {
