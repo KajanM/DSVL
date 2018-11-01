@@ -1,13 +1,17 @@
 package com.dsvl.flood.service.impl;
 
-import com.dsvl.flood.UdpHelper;
-import com.dsvl.flood.UdpMsgBuilder;
+import com.dsvl.flood.*;
+import com.dsvl.flood.exceptions.RequestFailedException;
 import com.dsvl.flood.service.RegisterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.io.UnsupportedEncodingException;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
 
 @Service
 public class RegisterServiceImpl implements RegisterService {
@@ -15,22 +19,28 @@ public class RegisterServiceImpl implements RegisterService {
     private static final Logger logger = LoggerFactory.getLogger(RegisterServiceImpl.class);
 
     @Override
-    public Boolean register(InetAddress bootstrapAddress, InetAddress nodeAddress, Integer bootstrapServerPort, Integer nodeUdpPort, String username) {
-
+    public Boolean register(InetAddress bootstrapAddress, int bootstrapServerPort,
+                            InetAddress nodeAddress, int nodeUdpPort, String username, List<Neighbour> existingNodes) {
+        //send and receive - to stay synced with the bootstrap server
         String regMsg = UdpMsgBuilder.buildRegisterMsg(nodeAddress.getHostAddress(), nodeUdpPort, username);
+        DatagramPacket responsePacket =  UdpHelper.sendAndReceiveMessage(regMsg, bootstrapAddress, bootstrapServerPort,
+                nodeUdpPort, 2000);
 
-        if (!UdpHelper.sendMessage(regMsg, bootstrapAddress, bootstrapServerPort, nodeUdpPort)) {
-            logger.warn("Registering with the bootstrap server failed");
+        //process response
+        if (responsePacket.getAddress() == null) { // no response from bootstrap server
             return false;
         }
-
-        if (UdpHelper.receiveMessage(nodeUdpPort, 2000) != null) {
-            // TODO: Subhashini, REGOK specific implementation should go here
-            logger.info("Successfully registered with the bootstrap server");
-            return true;
+        MessageDecoder messageDecoder = MessageDecoder.getInstance();
+        MessageObject response;
+        try {
+            response = messageDecoder.decode(responsePacket.getData(), responsePacket.getLength());
+        } catch (RequestFailedException e) { // error response from bootstrap server
+            logger.error(e.getMessage());
+            return false;
         }
-
-        return false;
+        existingNodes.addAll(response.getExistingNodes());
+        logger.debug("{} existing node addresses received from the bootstrap server", existingNodes.size());
+        return true;
     }
 
 }

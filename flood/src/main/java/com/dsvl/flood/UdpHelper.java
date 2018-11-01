@@ -62,6 +62,42 @@ public class UdpHelper {
     }
 
     /**
+     * To keep the bootstrap server and this node synced, had to include both send and receive in the same method
+     *
+     * @param message
+     * @param destinationAddress
+     * @param destinationPort
+     * @param nodePort
+     * @return the response DatagramPacket
+     */
+    public static DatagramPacket sendAndReceiveMessage(@NotNull String message,
+                                                       @NotNull InetAddress destinationAddress, @NotNull int destinationPort,
+                                                       @NotNull Integer nodePort, @NotNull int timeOutInMilliSecond) {
+        byte[] buf = message.getBytes();
+        byte[] response = new byte[65536];
+        DatagramPacket requestPacket = new DatagramPacket(buf, buf.length, destinationAddress, destinationPort);
+        DatagramPacket responsePacket = new DatagramPacket(response, response.length);
+        try (DatagramSocket socket = new DatagramSocket(nodePort)) {
+            //send
+            socket.send(requestPacket);
+            logger.info("Sent UDP message to {}:{} {}", requestPacket.getAddress().getHostAddress(), requestPacket.getPort(), message);
+
+            //receive
+            socket.setSoTimeout(timeOutInMilliSecond);
+            socket.receive(responsePacket);
+            String receivedData = new String(responsePacket.getData(), 0, responsePacket.getLength());
+            logger.info("Received UDP message from {}:{} {}", responsePacket.getAddress().getHostAddress(), responsePacket.getPort(), receivedData);
+        }catch (SocketTimeoutException e) {
+            logger.info("Timeout while waiting to receive UDP message");
+        } catch (SocketException e) {
+            logger.error("Unable to create a UDP receiving socket", e);
+        } catch (IOException e) {
+            logger.error("unable to send the message", e);
+        }
+        return responsePacket;
+    }
+
+    /**
      * Helper method to receive a UDP message
      * Note that call to this method will block the executing thread until the message is received
      *

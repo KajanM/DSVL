@@ -59,6 +59,7 @@ public class Node {
      */
     private final List<File> files;
 
+    private final List<Neighbour> existingNodes;
     private final List<Neighbour> neighbours;
 
     @Autowired
@@ -82,6 +83,7 @@ public class Node {
         files = new ArrayList<>();
         initializeFiles();
 
+        existingNodes = new ArrayList<>();
         neighbours = new ArrayList<>();
 
     }
@@ -94,7 +96,8 @@ public class Node {
     }
 
     public boolean register() {
-        isRegistered = registerService.register(bootstrapServerAddress, nodeAddress, bootstrapServerPort, nodeUdpPort, name);
+        isRegistered = registerService.register(bootstrapServerAddress, bootstrapServerPort, nodeAddress, nodeUdpPort,
+                name, existingNodes);
         return isRegistered;
     }
 
