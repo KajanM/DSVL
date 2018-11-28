@@ -1,9 +1,8 @@
 package com.dsvl.flood;
 
-import com.dsvl.flood.exceptions.RequestFailedException;
+import com.dsvl.flood.exceptions.ErroneousResponseException;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ public final class MessageDecoder {
         return instance;
     }
 
-    public MessageObject decode(byte[] data, int dataLength) throws RequestFailedException{
+    public MessageObject decode(byte[] data, int dataLength) throws ErroneousResponseException {
         String s = new String(data, 0, dataLength);
         StringTokenizer st = new StringTokenizer(s, " ");
 
@@ -46,6 +45,7 @@ public final class MessageDecoder {
         switch (command) {
             case REGOK:
                 //expected response ---> length REGOK no_nodes IP_1 port_1 IP_2 port_2
+                messageObject.setMsgType(REGOK);
                 String numberOfNodesSt = st.nextToken();
                 if (numberOfNodesSt.length() == 1) { // REGOK with success
                     int numberOfNodes = Integer.parseInt(numberOfNodesSt);
@@ -64,16 +64,29 @@ public final class MessageDecoder {
                         case "9999":
                             reason = "REG unsuccessful - Error in the command";
                         case "9998":
-                            reason = "REG unsuccessful -Already registered, unregister first";
+                            reason = "REG unsuccessful - Already registered, unregister first";
                         case "9997":
-                            reason = "REG unsuccessful -Registered to another user, try a different IP and port";
+                            reason = "REG unsuccessful - Registered to another user, try a different IP and port";
                         case "9996":
                             reason = "REG unsuccessful - Can’t register. Bootstrap server full.";
                         default:
                             reason = "REG unsuccessful - Error registering to Bootstrap server";
                     }
-                    throw new RequestFailedException(reason);
+                    throw new ErroneousResponseException(reason);
                 }
+                break;
+            case JOIN:
+                //expected response ---> length JOIN IP_address port_no
+                messageObject.setMsgType(JOIN);
+                try {
+                    String ip = st.nextToken();
+                    int port = Integer.parseInt(st.nextToken());
+                    messageObject.setJoinRequester(new Neighbour(InetAddress.getByName(ip), port));
+                } catch (UnknownHostException e) {
+                    //ignore
+                }
+                break;
+
         }
         return messageObject;
     }

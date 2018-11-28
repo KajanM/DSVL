@@ -1,5 +1,6 @@
 package com.dsvl.flood;
 
+import com.dsvl.flood.service.JoinService;
 import com.dsvl.flood.service.RegisterService;
 import com.dsvl.flood.service.SearchService;
 import org.slf4j.Logger;
@@ -59,11 +60,21 @@ public class Node {
      */
     private final List<File> files;
 
+    /**
+     * List of neighbours that exists in the network but this {@code Node} has not directly connected to
+     */
     private final List<Neighbour> existingNodes;
+
+    /**
+     * List of neighbours that this {@code Node} has directly connected to
+     */
     private final List<Neighbour> neighbours;
 
     @Autowired
     private RegisterService registerService;
+
+    @Autowired
+    private JoinService joinService;
 
     @Autowired
     private SearchService searchService;
@@ -101,6 +112,38 @@ public class Node {
         return isRegistered;
     }
 
+    public boolean joinNetwork(List<Neighbour> existingNodes) {
+        logger.info("Trying to join the network");
+        if(existingNodes.isEmpty()) {
+            logger.info("I am the only node in the network");
+            return true;
+        }
+        List<Neighbour> peers = new ArrayList<>(existingNodes);
+
+        /*
+        * Tries to connect to a random peer, if successful removes from the local list
+        */
+        while (!peers.isEmpty()) {
+            int peerIndex  = (int)(Math.random() * peers.size()); // 0 <= peerIndex < (neighbour list length)
+            Neighbour peer = peers.get(peerIndex);
+            boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, nodeUdpPort);
+            if (joinSuccessful) {
+                neighbours.add(peer);
+                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getPort());
+            }
+            peers.remove(peerIndex);
+            if (neighbours.size() == 2){
+                logger.info("Successfully joined the network");
+                return true;
+            }
+        }
+        if (neighbours.size() > 0) {
+            logger.info("Joined the network");
+            return true;
+        }
+        return false;
+    }
+
     public List<File> search(String fileName) {
         List<File> results = searchInLocalStore(fileName);
 
@@ -130,5 +173,13 @@ public class Node {
 
     public void setRegistered(Boolean isRegistered) {
         this.isRegistered = isRegistered;
+    }
+
+    public List<Neighbour> getExistingNodes() {
+        return existingNodes;
+    }
+
+    public List<Neighbour> getNeighbours() {
+        return neighbours;
     }
 }

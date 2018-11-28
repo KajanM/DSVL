@@ -1,16 +1,14 @@
 package com.dsvl.flood.service.impl;
 
 import com.dsvl.flood.*;
-import com.dsvl.flood.exceptions.RequestFailedException;
+import com.dsvl.flood.exceptions.ErroneousResponseException;
 import com.dsvl.flood.service.RegisterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.UnsupportedEncodingException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 
 @Service
@@ -33,8 +31,9 @@ public class RegisterServiceImpl implements RegisterService {
         MessageDecoder messageDecoder = MessageDecoder.getInstance();
         MessageObject response;
         try {
+            //here the data looks like: length REGOK no_nodes IP_1 port_1 IP_2 port_2
             response = messageDecoder.decode(responsePacket.getData(), responsePacket.getLength());
-        } catch (RequestFailedException e) { // error response from bootstrap server
+        } catch (ErroneousResponseException e) { // error response from bootstrap server
             logger.error(e.getMessage());
             return false;
         }
