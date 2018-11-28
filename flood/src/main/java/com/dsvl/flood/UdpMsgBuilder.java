@@ -20,6 +20,11 @@ public class UdpMsgBuilder {
     private static final String JOIN_MSG_TEMPLATE = "{0} JOIN {1} {2,number,#}";
 
     /**
+     * length JOINOK value
+     */
+    private static final String JOINOK_MSG_TEMPLATE = "{0} JOINOK {1,number,#}";
+
+    /**
      * Returns a {@code String} of the format {@code length SER IP port file_name hops}
      *
      * @param nodeAddress
@@ -63,8 +68,8 @@ public class UdpMsgBuilder {
 
     /**
      * Returns a {@code String} of the format {@code length JOIN IP_address port_no}
-     * @param nodeAddress
-     * @param nodeUdpPort
+     * @param nodeAddress my ip
+     * @param nodeUdpPort my listening udp port
      * @return the join message
      */
     public static String buildJoinMsg(String nodeAddress, Integer nodeUdpPort) {
@@ -78,6 +83,24 @@ public class UdpMsgBuilder {
         int length = 11 + nodeAddress.length() + nodeUdpPort.toString().length();
 
         return MessageFormat.format(JOIN_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort);
+    }
+
+    /**
+     * Returns a {@code String} of the format {@code length JOINOK value}
+     * @param value 0 if success, else 9999
+     * @return the join ok message
+     */
+    public static String buildJoinOkMsg(Integer value) {
+        /*
+         * 4 - length
+         * 2 - spaces
+         * 6 - JOINOK
+         * __
+         * 12
+         * */
+        int length = 12 + value.toString().length();
+
+        return MessageFormat.format(JOIN_MSG_TEMPLATE, String.format("%04d", length), value);
     }
 
 }

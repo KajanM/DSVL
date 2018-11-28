@@ -44,12 +44,6 @@ public class Node {
     private Boolean isRegistered = false;
 
     /**
-     * {@code Boolean} value indicating if this {@code Nods} is connected
-     * to the network or not.
-     */
-    private Boolean connected = false;
-
-    /**
      * The IP address of the {@code Node}.
      * Eagerly initialized
      */
@@ -118,9 +112,13 @@ public class Node {
         return isRegistered;
     }
 
-    public boolean joinNetwork(List<Neighbour> existingPeers) {
-        List<Neighbour> peers = new ArrayList<>();
-        peers.addAll(existingPeers);
+    public boolean joinNetwork(List<Neighbour> existingNodes) {
+        logger.info("Trying to join the network");
+        if(existingNodes.isEmpty()) {
+            logger.info("I am the only node in the network");
+            return true;
+        }
+        List<Neighbour> peers = new ArrayList<>(existingNodes);
 
         /*
         * Tries to connect to a random peer, if successful removes from the local list
@@ -131,16 +129,16 @@ public class Node {
             boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, nodeUdpPort);
             if (joinSuccessful) {
                 neighbours.add(peer);
-            } else {
-                peers.remove(peerIndex);
+                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getPort());
             }
-            if (neighbours.size() > 1){
+            peers.remove(peerIndex);
+            if (neighbours.size() == 2){
                 logger.info("Successfully joined the network");
                 return true;
             }
         }
-        if (neighbours.size() == 1) {
-            logger.warn("Joined the network via only one peer");
+        if (neighbours.size() > 0) {
+            logger.info("Joined the network");
             return true;
         }
         return false;
@@ -175,5 +173,13 @@ public class Node {
 
     public void setRegistered(Boolean isRegistered) {
         this.isRegistered = isRegistered;
+    }
+
+    public List<Neighbour> getExistingNodes() {
+        return existingNodes;
+    }
+
+    public List<Neighbour> getNeighbours() {
+        return neighbours;
     }
 }

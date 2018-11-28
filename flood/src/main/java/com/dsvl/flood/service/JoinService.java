@@ -6,7 +6,6 @@ public interface JoinService {
 
     /**
      * msg: {@code length JOIN IP_address port_no}
-     *
      * @param peerAddress
      * @param peerPort
      * @param nodeAddress
