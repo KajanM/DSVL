@@ -80,7 +80,7 @@ public final class MessageDecoder {
                 messageObject.setMsgType(JOIN);
                 try {
                     String ip = st.nextToken();
-                    Integer port = Integer.parseInt(st.nextToken());
+                    int port = Integer.parseInt(st.nextToken());
                     messageObject.setJoinRequester(new Neighbour(InetAddress.getByName(ip), port));
                 } catch (UnknownHostException e) {
                     //ignore
