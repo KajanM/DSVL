@@ -1,6 +1,7 @@
 package com.dsvl.flood;
 
 import com.dsvl.flood.exceptions.ErroneousResponseException;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -34,8 +35,11 @@ public final class MessageDecoder {
         return instance;
     }
 
+//    public MessageObject
+
     public MessageObject decode(byte[] data, int dataLength) throws ErroneousResponseException {
         String s = new String(data, 0, dataLength);
+
         StringTokenizer st = new StringTokenizer(s, " ");
 
         String length = st.nextToken();
@@ -86,7 +90,36 @@ public final class MessageDecoder {
                     //ignore
                 }
                 break;
+            case SER:
+                messageObject.setMsgType(SER);
 
+                try {
+                    String ip = st.nextToken();
+                    int port = Integer.parseInt(st.nextToken());
+                    String file_name = st.nextToken();
+                    int hops = Integer.parseInt(st.nextToken());
+                    messageObject.setFile_name(file_name);
+                    messageObject.setHops(hops);
+                } catch (Exception e) {
+                    //ignore
+                }
+                break;
+            case SEROK:
+                messageObject.setMsgType(SEROK);
+
+                try {
+                    int no_of_results = Integer.parseInt(st.nextToken());
+                    String ip = st.nextToken();
+                    int port = Integer.parseInt(st.nextToken());
+                    int hops = Integer.parseInt(st.nextToken())+1;
+
+                    //TODO THILAN create a array in message object class and add search results into it
+//                    messageObject.setFile_name(file_name);
+//                    messageObject.setHops(hops);
+                } catch (Exception e) {
+                    //ignore
+                }
+                break;
         }
         return messageObject;
     }
