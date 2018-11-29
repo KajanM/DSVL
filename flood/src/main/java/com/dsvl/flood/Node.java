@@ -16,6 +16,7 @@ import java.util.*;
 
 import static com.dsvl.flood.Constants.Status.NOT_REGISTERED;
 
+
 /**
  * This {@code Component} represents the actual Node in the network.
  * <br/>
@@ -78,6 +79,7 @@ public class Node {
      */
     private Status status;
 
+
     @Autowired
     private RegisterService registerService;
 
@@ -108,6 +110,7 @@ public class Node {
         existingNodes = new ArrayList<>();
         neighbours = new ArrayList<>();
         status = NOT_REGISTERED;
+
     }
 
     private void initializeFiles() {
