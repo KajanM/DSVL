@@ -16,10 +16,10 @@ public class SearchController {
 
     // TODO: kasthuri, convert this to post mapping
     @GetMapping("/{file-name}")
-    public String search(@PathVariable(value = "file-name") String fileName, Model model) {
-        model.addAttribute("results", node.search(fileName));
-        return "results";
-    }
+//    public String search(@PathVariable(value = "file-name") String fileName,int hops, Model model) {
+//        model.addAttribute("results", node.search(fileName,hops));
+//        return "results";
+//    }
 
     @Autowired
     public void setNode(Node node) {

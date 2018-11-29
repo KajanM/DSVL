@@ -78,7 +78,6 @@ public class UdpServer implements CommandLineRunner {
                 DatagramPacket incomingPacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(incomingPacket);
                 if (incomingPacket.getData().length != 0) {
-                    // TODO: process incoming UDP message
                     String receivedData = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
                     logger.info("Received UDP message from {}:{} {}", incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), receivedData);
                     MessageDecoder messageDecoder = MessageDecoder.getInstance();
@@ -118,6 +117,27 @@ public class UdpServer implements CommandLineRunner {
                     UdpHelper.sendMessage("0016 JOINOK 9999", senderIP, senderPort);
                 }
                 break;
+
+            case "SER":
+                logger.info("Search query has found, file name: {}, hops {}, IP address: {}, port: {}",
+                        msgObject.getFile_name(), msgObject.getHops(),senderIP,senderPort);
+                List<File> search_results=node.search(msgObject);
+                String file_name_string= "";
+                String query= "SEROK"+" "+String.valueOf(search_results.size())+" "+String.valueOf(senderIP)+" "+String.valueOf(senderPort)+" "+String.valueOf(msgObject.getHops())+" ";
+                for(int i=0;i<search_results.size();i++){
+                    String fn=search_results.get(i).getFileName();
+                    fn = fn.replaceAll(" ", "_");
+                    file_name_string+=fn+" ";
+                }
+                query+=file_name_string;
+                String length=String.format("%04d", query.length()+4);
+                query=length+" "+query;
+                System.out.println(query);
+                System.out.println(senderIP);
+                UdpHelper.sendMessage(query, senderIP, senderPort);
+            case "SEROK":
+                System.out.println("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+
             default:
                 UdpHelper.sendMessage("0010 ERROR", senderIP, senderPort);
                 break;
