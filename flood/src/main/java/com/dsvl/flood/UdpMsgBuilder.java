@@ -100,7 +100,7 @@ public class UdpMsgBuilder {
          * */
         int length = 12 + value.toString().length();
 
-        return MessageFormat.format(JOIN_MSG_TEMPLATE, String.format("%04d", length), value);
+        return MessageFormat.format(JOINOK_MSG_TEMPLATE, String.format("%04d", length), value);
     }
 
 }
