@@ -2,6 +2,7 @@ package com.dsvl.flood;
 
 import com.dsvl.flood.Constants.Status;
 import com.dsvl.flood.service.JoinService;
+import com.dsvl.flood.service.LeaveService;
 import com.dsvl.flood.service.RegisterService;
 import com.dsvl.flood.service.SearchService;
 import org.slf4j.Logger;
@@ -88,6 +89,9 @@ public class Node {
     private JoinService joinService;
 
     @Autowired
+    private LeaveService leaveService;
+
+    @Autowired
     private SearchService searchService;
 
     @Autowired
@@ -161,6 +165,7 @@ public class Node {
         return false;
     }
 
+
     public List<File> search(MessageObject msgObject) throws NullPointerException {
         msgObject.setHops(msgObject.getHops()-1);
         List<File> results = searchInLocalStore(msgObject.getFile_name());
@@ -170,10 +175,8 @@ public class Node {
                 searchService.search(msgObject, neighbours, nodeAddress, nodeTcpPort);
             }catch (Exception e){
                 logger.error("Unable to propogate search to neighbour nodes", e);
-
             }
         }
-
         return results;
     }
 
@@ -206,9 +209,7 @@ public class Node {
     }
 
     private void update_table() {
-
         map = new HashMap<Integer, HashSet>();
-
         for (int i = 0; i < files.size(); i++) {
             Set<String> myset = new HashSet<>();
             String str = files.get(i).getFileName().toLowerCase();
@@ -218,6 +219,29 @@ public class Node {
             }
             map.put(i, (HashSet) myset);
         }
+    }
+
+    public boolean leaveNetwork(List<Neighbour> neighbours) {
+        logger.info("Preparing to leave the network");
+        if(neighbours.isEmpty()) {
+            logger.info("I am the only node in the network. Leaving gracefully.");
+            return true;
+        }
+        for(Neighbour neighbour: neighbours) {
+            boolean leaveSuccessful = leaveService.leave(neighbour.getAddress(), neighbour.getPort(),
+                    nodeAddress, nodeUdpPort);
+            if (leaveSuccessful) {
+                logger.info("Informed neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getPort());
+            } else {
+                logger.info("Could not properly inform neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getPort());
+            }
+            neighbours.remove(neighbour);
+        }
+        if (neighbours.size() == 0) {
+            logger.info("Finished informing the neighbours. Leaving gracefully.");
+            return true;
+        }
+        return false;
     }
 
     public Boolean isRegistered() {

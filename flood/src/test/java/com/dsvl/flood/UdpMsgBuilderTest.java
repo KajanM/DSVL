@@ -28,9 +28,6 @@ public class UdpMsgBuilderTest {
     }
 
     @Test
-    public void buildJoinOkMsg() {
-        //length JOINOK value
-        String joinOkMsg = UdpMsgBuilder.buildJoinOkMsg(9999);
-        assertEquals("0016 JOINOK 9999", joinOkMsg);
+    public void buildLeaveMsg() {
     }
 }

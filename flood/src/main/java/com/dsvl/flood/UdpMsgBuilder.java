@@ -20,9 +20,9 @@ public class UdpMsgBuilder {
     private static final String JOIN_MSG_TEMPLATE = "{0} JOIN {1} {2,number,#}";
 
     /**
-     * length JOINOK value
+     * length LEAVE IP_address port_no
      */
-    private static final String JOINOK_MSG_TEMPLATE = "{0} JOINOK {1,number,#}";
+    private static final String LEAVE_MSG_TEMPLATE = "{0} LEAVE {1} {2,number,#}";
 
     /**
      * Returns a {@code String} of the format {@code length SER IP port file_name hops}
@@ -87,21 +87,20 @@ public class UdpMsgBuilder {
     }
 
     /**
-     * Returns a {@code String} of the format {@code length JOINOK value}
-     * @param value 0 if success, else 9999
-     * @return the join ok message
+     * Returns a {@code String} of the format {@code length LEAVE IP_address port_no}
+     * @param nodeAddress my ip
+     * @param nodeUdpPort my listening udp port
+     * @return the leave message
      */
-    public static String buildJoinOkMsg(Integer value) {
+    public static String buildLeaveMsg(String nodeAddress, Integer nodeUdpPort) {
         /*
          * 4 - length
-         * 2 - spaces
-         * 6 - JOINOK
+         * 3 - spaces
+         * 5 - LEAVE
          * __
          * 12
          * */
-        int length = 12 + value.toString().length();
-
-        return MessageFormat.format(JOINOK_MSG_TEMPLATE, String.format("%04d", length), value);
+        int length = 12 + nodeAddress.length() + nodeUdpPort.toString().length();
+        return MessageFormat.format(LEAVE_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort);
     }
-
 }
