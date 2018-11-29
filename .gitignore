@@ -1,6 +1,7 @@
 /flood/.gradle
 /flood/build/
 /flood/!gradle/wrapper/gradle-wrapper.jar
+out/
 
 ### STS ###
 .apt_generated
