@@ -1,6 +1,8 @@
 package com.dsvl.flood;
 
 import com.dsvl.flood.exceptions.ErroneousResponseException;
+import com.dsvl.flood.model.Log;
+import com.dsvl.flood.service.LogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +14,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.ArrayList;
 import java.util.List;
+
+import static com.dsvl.flood.Constants.Status.REGISTERED;
 
 /**
  * This {@code Component} starts with the application and attempts
@@ -34,13 +37,20 @@ public class UdpServer implements CommandLineRunner {
     @Autowired
     private Node node;
 
+    @Autowired
+    private LogRepository logRepository;
+
     @Override
     public void run(String... args) {
 
         while (!node.isRegistered()) {
             logger.info("Attempting to register with the bootstrap server");
 
-            if (node.register()) break;
+            if (node.register()) {
+                node.setRegistered(true);
+                node.setStatus(REGISTERED);
+                break;
+            }
 
             // TODO: instead of sleeping for fixed 5 seconds apply some incremental logic
             logger.info("Sleeping for 5 seconds");
@@ -53,7 +63,7 @@ public class UdpServer implements CommandLineRunner {
 
         //try to join the network 10 times and give up
         List<Neighbour> existingNodes = node.getExistingNodes();
-        for (int i=10; i>-1; i--) {
+        for (int i = 10; i > -1; i--) {
             logger.info("Attempting to connect to the network: trial {}", i);
             if (node.joinNetwork(existingNodes)) break;
 
@@ -64,7 +74,7 @@ public class UdpServer implements CommandLineRunner {
             } catch (InterruptedException e) {
                 //ignore
             }
-            if(i ==0) {
+            if (i == 0) {
                 logger.warn("Unable to connect to the network");
             }
         }
@@ -80,6 +90,13 @@ public class UdpServer implements CommandLineRunner {
                 if (incomingPacket.getData().length != 0) {
                     // TODO: process incoming UDP message
                     String receivedData = new String(incomingPacket.getData(), 0, incomingPacket.getLength());
+                    Log log = new Log(
+                            incomingPacket.getAddress().getHostAddress() + ":" + incomingPacket.getPort(),
+                            "this",
+                            "UDP",
+                            receivedData
+                    );
+                    logRepository.save(log);
                     logger.info("Received UDP message from {}:{} {}", incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), receivedData);
                     MessageDecoder messageDecoder = MessageDecoder.getInstance();
                     try {
@@ -100,12 +117,12 @@ public class UdpServer implements CommandLineRunner {
 
     private void respond(MessageObject msgObject, InetAddress senderIP, int senderPort) {
         /*
-        * Messages That Will Not Be Handled Here
-        *
-        * REGOK - handled at RegisterServiceImpl because we have nothing else to do until we until we reg with bootstrap server
-        * JOINOK - handled at JoinServiceImpl because we have nothing else to do until we join the network
-        *
-        * */
+         * Messages That Will Not Be Handled Here
+         *
+         * REGOK - handled at RegisterServiceImpl because we have nothing else to do until we until we reg with bootstrap server
+         * JOINOK - handled at JoinServiceImpl because we have nothing else to do until we join the network
+         *
+         * */
         switch (msgObject.getMsgType()) {
             case "JOIN":
                 Neighbour newNeighbour = msgObject.getJoinRequester();

@@ -1,7 +1,7 @@
 name: dsvl
 
 server:
-  port: 4500
+  port: 8080
 
 node:
   port: 45555
@@ -13,3 +13,15 @@ bootstrap-server:
 logging:
   level:
     com.dsvl: debug
+
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2
+    datasource:
+      url: jdbc:h2:mem:dsvl
+      #      url: jdbc:h2:file:~/db/dsvl
+      username: sa
+      password:
+      driver-class-name: org.h2.Driver
