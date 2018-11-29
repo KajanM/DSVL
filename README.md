@@ -17,7 +17,7 @@ Instructions to build with an IDE is described [here](CONTRIBUTING.md).
     BUILD SUCCESSFUL in 6s
     3 actionable tasks: 3 up-to-date
     ```
-1. Run `java -jar build/libs/flood-0.0.1-SNAPSHOT.jar --node.port=44444`
+1. Run `java -jar build/libs/flood-0.0.1-SNAPSHOT.jar --node.port=44444 --server.port=8080`
 1. If the node starts correctly you will see log messages like below
     ```terminal
     2018-10-19 16:29:11.787  INFO 15771 --- [           main] com.dsvl.flood.FloodApplication          : Started FloodApplication in 3.403 seconds (JVM running for 3.948)
@@ -26,7 +26,7 @@ Instructions to build with an IDE is described [here](CONTRIBUTING.md).
     2018-10-19 16:29:11.796  INFO 15771 --- [           main] com.dsvl.flood.UdpHelper                 : Received UDP message from 127.0.0.1:55555 0044 REGOK 2 127.0.0.1 45555 127.0.0.1 44444
     2018-10-19 16:29:11.796  INFO 15771 --- [           main] c.d.f.service.impl.RegisterServiceImpl   : Successfully registered with the bootstrap server
     ```
-1. If you want to start multiple node instance, run the same command with different `node.port` value
+1. If you want to start multiple node instance, run the same command with different `node.port` and `server.port` values
 
 
  
