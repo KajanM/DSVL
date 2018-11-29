@@ -73,6 +73,7 @@ public class Node {
      */
     private final List<Neighbour> neighbours;
     private static Map<Integer, HashSet> map;
+    public static ArrayList<String> latestSearchResults;
 
     /**
      * Used to update UI
@@ -104,6 +105,7 @@ public class Node {
 
         this.nodeUdpPort = nodeUdpPort;
 
+        latestSearchResults=new ArrayList<>();
         files = new ArrayList<>();
         initializeFiles();
         update_table();
@@ -159,18 +161,17 @@ public class Node {
         return false;
     }
 
-    public List<File> search(MessageObject msgObject) {
+    public List<File> search(MessageObject msgObject) throws NullPointerException {
         msgObject.setHops(msgObject.getHops()-1);
         List<File> results = searchInLocalStore(msgObject.getFile_name());
 
-        if (msgObject.getHops()<=0) {
-//            results = searchService.search(fileName, neighbours, nodeAddress, nodeTcpPort);
-            try{
+        if (msgObject.getHops()<0) {
+//            try{
                 searchService.search(msgObject, neighbours, nodeAddress, nodeTcpPort);
-            }catch (Exception e){
-                logger.error("Unable to propogate search to neighbour nodes", e);
-
-            }
+//            }catch (Exception e){
+//                logger.error("Unable to propogate search to neighbour nodes", e);
+//
+//            }
         }
 
         return results;

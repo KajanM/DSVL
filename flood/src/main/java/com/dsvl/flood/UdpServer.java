@@ -138,22 +138,43 @@ public class UdpServer implements CommandLineRunner {
             case "SER":
                 logger.info("Search query has found, file name: {}, hops {}, IP address: {}, port: {}",
                         msgObject.getFile_name(), msgObject.getHops(),senderIP,senderPort);
-                List<File> search_results=node.search(msgObject);
-                String file_name_string= "";
-                String query= "SEROK"+" "+String.valueOf(search_results.size())+" "+String.valueOf(senderIP)+" "+String.valueOf(senderPort)+" "+String.valueOf(msgObject.getHops())+" ";
-                for(int i=0;i<search_results.size();i++){
-                    String fn=search_results.get(i).getFileName();
-                    fn = fn.replaceAll(" ", "_");
-                    file_name_string+=fn+" ";
+                try {
+                    List<File> search_results = node.search(msgObject);
+                    String file_name_string = "";
+                    String query = "SEROK" + " " + String.valueOf(search_results.size()) + " " + String.valueOf(senderIP) + " " + String.valueOf(senderPort) + " " + String.valueOf(msgObject.getHops()) + " ";
+                    for (int i = 0; i < search_results.size(); i++) {
+                        String fn = search_results.get(i).getFileName();
+                        fn = fn.replaceAll(" ", "_");
+                        file_name_string += fn + " ";
+                    }
+                    query += file_name_string;
+                    String length = String.format("%04d", query.length() + 4);
+                    query = length + " " + query;
+                    System.out.println(query);
+                    System.out.println(senderIP);
+                    UdpHelper.sendMessage(query, senderIP, senderPort);
+                }catch(Exception e){
+                    String query="SEROK"+" "+"9998 "+ String.valueOf(senderIP) + " " + String.valueOf(senderPort) + " " + String.valueOf(msgObject.getHops());
+                    // some other error
+                    UdpHelper.sendMessage(query, senderIP, senderPort);
                 }
-                query+=file_name_string;
-                String length=String.format("%04d", query.length()+4);
-                query=length+" "+query;
-                System.out.println(query);
-                System.out.println(senderIP);
-                UdpHelper.sendMessage(query, senderIP, senderPort);
+
             case "SEROK":
-                System.out.println("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
+
+                if (msgObject.getNo_of_results()==0){
+                    logger.info("Search response has recieved  Number of results: {}, hops {}, IP address: {}, TCPport: {}",
+                            msgObject.getNo_of_results(), msgObject.getHops(),msgObject.getIp(),msgObject.getTcpPort());
+                }
+                else if (msgObject.getNo_of_results()==9999){
+                    logger.info("Search response has recieved:  failure due to node unreachable");
+                }
+                else if (msgObject.getNo_of_results()==9998){
+                logger.info("Search response has recieved:  some other error");
+                }
+                else {
+                    logger.info("Search response has recieved  Number of results: {}, hops {}, IP address: {}, TCPport: {}",
+                            msgObject.getNo_of_results(), msgObject.getHops(),msgObject.getIp(),msgObject.getTcpPort());
+                }
 
             default:
                 UdpHelper.sendMessage("0010 ERROR", senderIP, senderPort);

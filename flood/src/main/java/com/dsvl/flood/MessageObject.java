@@ -8,8 +8,10 @@ public class MessageObject {
     private Neighbour joinRequester;
     private String file_name;
     private int hops;
-//    private Integer tcp_port;
-//    private String sendersAddress;
+    private String ip;
+    private int tcpPort;
+    private int no_of_results;
+
 
     public String getMsgType() {
         return msgType;
@@ -47,5 +49,29 @@ public class MessageObject {
 
     public void setJoinRequester(Neighbour joinRequester) {
         this.joinRequester = joinRequester;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public int getTcpPort() {
+        return tcpPort;
+    }
+
+    public void setTcpPort(int tcpPort) {
+        this.tcpPort = tcpPort;
+    }
+
+    public int getNo_of_results() {
+        return no_of_results;
+    }
+
+    public void setNo_of_results(int no_of_results) {
+        this.no_of_results = no_of_results;
     }
 }
