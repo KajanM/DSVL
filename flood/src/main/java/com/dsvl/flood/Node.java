@@ -1,5 +1,6 @@
 package com.dsvl.flood;
 
+import com.dsvl.flood.Constants.Status;
 import com.dsvl.flood.service.JoinService;
 import com.dsvl.flood.service.RegisterService;
 import com.dsvl.flood.service.SearchService;
@@ -13,6 +14,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.dsvl.flood.Constants.Status.NOT_REGISTERED;
 
 /**
  * This {@code Component} represents the actual Node in the network.
@@ -70,6 +73,11 @@ public class Node {
      */
     private final List<Neighbour> neighbours;
 
+    /**
+     * Used to update UI
+     */
+    private Status status;
+
     @Autowired
     private RegisterService registerService;
 
@@ -80,7 +88,11 @@ public class Node {
     private SearchService searchService;
 
     @Autowired
-    public Node(@Value("${bootstrap-server.address}") String bsIpValue, @Value("${bootstrap-server.port}") int bsPort, @Value("${name}") String name, @Value("${server.port}") int nodeTcpPort, @Value("${node.port}") int nodeUdpPort) throws UnknownHostException {
+    public Node(@Value("${bootstrap-server.address}") String bsIpValue,
+                @Value("${bootstrap-server.port}") int bsPort,
+                @Value("${name}") String name,
+                @Value("${server.port}") int nodeTcpPort,
+                @Value("${node.port}") int nodeUdpPort) throws UnknownHostException {
         bootstrapServerPort = bsPort;
         this.name = name;
         this.nodeTcpPort = nodeTcpPort;
@@ -88,7 +100,6 @@ public class Node {
         bootstrapServerAddress = InetAddress.getByName(bsIpValue);
         nodeAddress = InetAddress.getByName("localhost");
 
-        // TODO: make the node's port a random value
         this.nodeUdpPort = nodeUdpPort;
 
         files = new ArrayList<>();
@@ -96,7 +107,7 @@ public class Node {
 
         existingNodes = new ArrayList<>();
         neighbours = new ArrayList<>();
-
+        status = NOT_REGISTERED;
     }
 
     private void initializeFiles() {
@@ -114,17 +125,17 @@ public class Node {
 
     public boolean joinNetwork(List<Neighbour> existingNodes) {
         logger.info("Trying to join the network");
-        if(existingNodes.isEmpty()) {
+        if (existingNodes.isEmpty()) {
             logger.info("I am the only node in the network");
             return true;
         }
         List<Neighbour> peers = new ArrayList<>(existingNodes);
 
         /*
-        * Tries to connect to a random peer, if successful removes from the local list
-        */
+         * Tries to connect to a random peer, if successful removes from the local list
+         */
         while (!peers.isEmpty()) {
-            int peerIndex  = (int)(Math.random() * peers.size()); // 0 <= peerIndex < (neighbour list length)
+            int peerIndex = (int) (Math.random() * peers.size()); // 0 <= peerIndex < (neighbour list length)
             Neighbour peer = peers.get(peerIndex);
             boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, nodeUdpPort);
             if (joinSuccessful) {
@@ -132,7 +143,7 @@ public class Node {
                 logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getPort());
             }
             peers.remove(peerIndex);
-            if (neighbours.size() == 2){
+            if (neighbours.size() == 2) {
                 logger.info("Successfully joined the network");
                 return true;
             }
@@ -160,7 +171,7 @@ public class Node {
         files.stream()
                 .filter((file) -> file.getFileName().contains(fileName))
                 .forEach(results::add);
-        return  results;
+        return results;
     }
 
     public Boolean isRegistered() {
@@ -181,5 +192,29 @@ public class Node {
 
     public List<Neighbour> getNeighbours() {
         return neighbours;
+    }
+
+    public String getStatus() {
+        return status.toString().toLowerCase();
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public String getNodeAddress() {
+        return nodeAddress.getHostAddress();
+    }
+
+    public String getBootstrapServerAddress() {
+        return bootstrapServerAddress.getHostAddress() + bootstrapServerPort;
+    }
+
+    public int getTcpPort() {
+        return nodeTcpPort;
+    }
+
+    public List<File> getFiles() {
+        return files;
     }
 }

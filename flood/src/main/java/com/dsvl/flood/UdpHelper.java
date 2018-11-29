@@ -1,7 +1,11 @@
 package com.dsvl.flood;
 
+import com.dsvl.flood.model.Log;
+import com.dsvl.flood.service.LogRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
@@ -13,9 +17,17 @@ import java.net.*;
  * @see #sendMessage(String, InetAddress, int, Integer)
  * @see #receiveMessage(int)
  */
+@SuppressWarnings("ALL")
+@Component
 public class UdpHelper {
 
     private static final Logger logger = LoggerFactory.getLogger(UdpHelper.class);
+    private static LogRepository logRepository;
+
+    @Autowired
+    public UdpHelper(LogRepository logRepository) {
+        UdpHelper.logRepository = logRepository;
+    }
 
     /**
      * Send UDP message with a random port for UDP socket
@@ -31,6 +43,11 @@ public class UdpHelper {
         DatagramPacket packet = new DatagramPacket(buf, buf.length, destinationAddress, destinationPort);
         try (DatagramSocket socket = new DatagramSocket()) {
             socket.send(packet);
+            Log log = new Log(
+                    "this",
+                    destinationAddress.getHostAddress() + ":" + destinationPort, "UDP", message
+            );
+            logRepository.save(log);
             logger.info("Sent UDP message to {}:{} {}", packet.getAddress().getHostAddress(), packet.getPort(), message);
         } catch (IOException e) {
             logger.error("unable to send the message", e);
@@ -52,6 +69,11 @@ public class UdpHelper {
         byte[] buf = message.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, destinationAddress, destinationPort);
         try (DatagramSocket socket = new DatagramSocket(nodePort)) {
+            Log log = new Log(
+                    "this",
+                    destinationAddress.getHostAddress() + ":" + destinationPort, "UDP", message
+            );
+            logRepository.save(log);
             socket.send(packet);
             logger.info("Sent UDP message to {}:{} {}", packet.getAddress().getHostAddress(), packet.getPort(), message);
         } catch (IOException e) {
@@ -79,6 +101,11 @@ public class UdpHelper {
         DatagramPacket responsePacket = new DatagramPacket(response, response.length);
         try (DatagramSocket socket = new DatagramSocket(nodePort)) {
             //send
+            Log log = new Log(
+                    "this",
+                    destinationAddress.getHostAddress() + ":" + destinationPort, "UDP", message
+            );
+            logRepository.save(log);
             socket.send(requestPacket);
             logger.info("Sent UDP message to {}:{} {}", requestPacket.getAddress().getHostAddress(), requestPacket.getPort(), message);
 
@@ -86,6 +113,11 @@ public class UdpHelper {
             socket.setSoTimeout(timeOutInMilliSecond);
             socket.receive(responsePacket);
             String receivedData = new String(responsePacket.getData(), 0, responsePacket.getLength());
+            log = new Log(
+                    destinationAddress.getHostAddress() + ":" + destinationPort,
+                    "this", "UDP", receivedData
+            );
+            logRepository.save(log);
             logger.info("Received UDP message from {}:{} {}", responsePacket.getAddress().getHostAddress(), responsePacket.getPort(), receivedData);
         }catch (SocketTimeoutException e) {
             logger.info("Timeout while waiting to receive UDP message");

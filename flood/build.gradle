@@ -26,7 +26,9 @@ repositories {
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-web')
-    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+    compile ('com.google.guava:guava:27.0.1-jre')
+    compile('com.h2database:h2')
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
