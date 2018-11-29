@@ -29,6 +29,11 @@ public class UdpMsgBuilder {
     private static final String LEAVE_MSG_TEMPLATE = "{0} LEAVE {1} {2,number,#}{3}";
 
     /**
+     * length UNREG IP_address port_no username
+     */
+    private static final String UNREGISTER_MSG_TEMPLATE = "{0} UNREG {1} {2,number,#} {3}";
+
+    /**
      * Returns a {@code String} of the format {@code length SER IP port file_name hops}
      *
      * @param nodeAddress
@@ -129,4 +134,25 @@ public class UdpMsgBuilder {
         length += messageLatterPart.length();
         return MessageFormat.format(LEAVE_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort, messageLatterPart);
     }
+
+    /**
+     * Returns a {@code String} of the format {@code length UNREG IP_address port_no username}
+     * @param nodeAddress my ip
+     * @param nodeUdpPort my listening udp port
+     * @param username name of the network
+     * @return the register message
+     */
+    public static String buildUnregisterMsg(String nodeAddress, Integer nodeUdpPort, String username) {
+        /*
+         * 4 - length
+         * 4 - spaces
+         * 5 - UNREG
+         * __
+         * 13
+         * */
+        int length = 13 + nodeAddress.length() + nodeUdpPort.toString().length() + username.length();
+
+        return MessageFormat.format(UNREGISTER_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort, username);
+    }
+
 }
