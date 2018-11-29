@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.dsvl.flood.Constants.Status.NOT_REGISTERED;
 
@@ -72,6 +71,7 @@ public class Node {
      * List of neighbours that this {@code Node} has directly connected to
      */
     private final List<Neighbour> neighbours;
+    private static Map<Integer, HashSet> map;
 
     /**
      * Used to update UI
@@ -104,7 +104,7 @@ public class Node {
 
         files = new ArrayList<>();
         initializeFiles();
-
+        update_table();
         existingNodes = new ArrayList<>();
         neighbours = new ArrayList<>();
         status = NOT_REGISTERED;
@@ -115,6 +115,7 @@ public class Node {
         files.add(new File("Adventures of Tintin"));
         files.add(new File("Hacking for Dummies"));
         files.add(new File("Super Mario"));
+        files.add(new File("Super Mario 2"));
     }
 
     public boolean register() {
@@ -155,23 +156,64 @@ public class Node {
         return false;
     }
 
-    public List<File> search(String fileName) {
-        List<File> results = searchInLocalStore(fileName);
+    public List<File> search(MessageObject msgObject) {
+        msgObject.setHops(msgObject.getHops()-1);
+        List<File> results = searchInLocalStore(msgObject.getFile_name());
 
-        if (results.isEmpty()) {
-            results = searchService.search(fileName, neighbours, nodeAddress, nodeTcpPort);
+        if (msgObject.getHops()<=0) {
+//            results = searchService.search(fileName, neighbours, nodeAddress, nodeTcpPort);
+            try{
+                searchService.search(msgObject, neighbours, nodeAddress, nodeTcpPort);
+            }catch (Exception e){
+                logger.error("Unable to propogate search to neighbour nodes", e);
+
+            }
         }
 
         return results;
     }
 
     private List<File> searchInLocalStore(String fileName) {
-        // TODO: thilan, implementation to check if query file is in local storage
+        ArrayList<Integer> file_indexes = getFileIndexes(fileName);
         List<File> results = new ArrayList<>();
-        files.stream()
-                .filter((file) -> file.getFileName().contains(fileName))
-                .forEach(results::add);
+        for (Integer file_index : file_indexes) {
+            results.add(files.get(file_index));
+        }
         return results;
+
+    }
+
+    private ArrayList<Integer> getFileIndexes(String fileName) {
+        Set<String> myset = new HashSet<>();
+        String[] s = fileName.toLowerCase().split("_");
+        for (String s1 : s) {
+            myset.add(s1);
+        }
+        int highest = 0;
+        ArrayList<Integer> file_indexes = new ArrayList<Integer>();
+        for (int i = 0; i < files.size(); i++) {
+            Set<String> intersection = new HashSet<String>(myset);
+            intersection.retainAll(map.get(i));
+            if (intersection.size() > highest) {
+                file_indexes.add(i);
+            }
+        }
+        return file_indexes;
+    }
+
+    private void update_table() {
+
+        map = new HashMap<Integer, HashSet>();
+
+        for (int i = 0; i < files.size(); i++) {
+            Set<String> myset = new HashSet<>();
+            String str = files.get(i).getFileName().toLowerCase();
+            String s[] = str.split(" ");
+            for (int j = 0; j < s.length; j++) {
+                myset.add(s[j]);
+            }
+            map.put(i, (HashSet) myset);
+        }
     }
 
     public Boolean isRegistered() {
@@ -217,4 +259,5 @@ public class Node {
     public List<File> getFiles() {
         return files;
     }
+
 }
