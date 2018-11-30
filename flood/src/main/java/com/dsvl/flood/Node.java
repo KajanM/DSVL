@@ -165,13 +165,13 @@ public class Node {
         msgObject.setHops(msgObject.getHops()-1);
         List<File> results = searchInLocalStore(msgObject.getFile_name());
 
-        if (msgObject.getHops()<0) {
-//            try{
+        if (msgObject.getHops()>0) {
+            try{
                 searchService.search(msgObject, neighbours, nodeAddress, nodeTcpPort);
-//            }catch (Exception e){
-//                logger.error("Unable to propogate search to neighbour nodes", e);
-//
-//            }
+            }catch (Exception e){
+                logger.error("Unable to propogate search to neighbour nodes", e);
+
+            }
         }
 
         return results;
