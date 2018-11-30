@@ -12,4 +12,5 @@ public class ErroneousResponseException extends Exception{
     public ErroneousResponseException(String message, Throwable e) {
         super(message, e);
     }
+
 }
