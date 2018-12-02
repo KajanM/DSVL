@@ -16,6 +16,7 @@ import java.util.*;
 
 import static com.dsvl.flood.Constants.Status.NOT_REGISTERED;
 
+
 /**
  * This {@code Component} represents the actual Node in the network.
  * <br/>
@@ -72,11 +73,13 @@ public class Node {
      */
     private final List<Neighbour> neighbours;
     private static Map<Integer, HashSet> map;
+    public static ArrayList<String> latestSearchResults;
 
     /**
      * Used to update UI
      */
     private Status status;
+
 
     @Autowired
     private RegisterService registerService;
@@ -102,12 +105,14 @@ public class Node {
 
         this.nodeUdpPort = nodeUdpPort;
 
+        latestSearchResults=new ArrayList<>();
         files = new ArrayList<>();
         initializeFiles();
         update_table();
         existingNodes = new ArrayList<>();
         neighbours = new ArrayList<>();
         status = NOT_REGISTERED;
+
     }
 
     private void initializeFiles() {
@@ -156,12 +161,11 @@ public class Node {
         return false;
     }
 
-    public List<File> search(MessageObject msgObject) {
+    public List<File> search(MessageObject msgObject) throws NullPointerException {
         msgObject.setHops(msgObject.getHops()-1);
         List<File> results = searchInLocalStore(msgObject.getFile_name());
 
-        if (msgObject.getHops()<=0) {
-//            results = searchService.search(fileName, neighbours, nodeAddress, nodeTcpPort);
+        if (msgObject.getHops()>0) {
             try{
                 searchService.search(msgObject, neighbours, nodeAddress, nodeTcpPort);
             }catch (Exception e){
