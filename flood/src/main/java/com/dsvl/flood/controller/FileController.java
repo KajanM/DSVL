@@ -54,12 +54,7 @@ public class FileController {
         );
         logRepository.save(log);
 
-        //Arrays.asList(names.split(",")).forEach(
-        //        name -> {
-        //            File file = new File(name);
-        //            node.deleteFile(file);
-        //        }
-        //);
+
         File file;
         for (String name : names.split(",")) {
             file = new File(name);
