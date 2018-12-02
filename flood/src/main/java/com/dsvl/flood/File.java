@@ -1,5 +1,7 @@
 package com.dsvl.flood;
 
+import java.util.Objects;
+
 public class File {
 
     private String fileName;
@@ -24,5 +26,19 @@ public class File {
 
     public void rename(String newName) {
         this.fileName = newName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        File file = (File) o;
+        return fileSize == file.fileSize &&
+                fileName.equals(file.fileName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fileName, fileSize);
     }
 }

@@ -260,4 +260,12 @@ public class Node {
         return files;
     }
 
+    public void addFile(File file) {
+        files.add(file);
+    }
+
+    public void deleteFile(File file) {
+        files.remove(file);
+    }
+
 }
