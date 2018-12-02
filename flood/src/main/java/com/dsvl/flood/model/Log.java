@@ -1,5 +1,7 @@
 package com.dsvl.flood.model;
 
+import com.dsvl.flood.util.Counter;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,6 +21,7 @@ public class Log {
 
     public Log() {
         this.timestamp = new Date();
+        this.id = Counter.nextId();
     }
 
     public Log(String sender, String receiver, String protocol, String message) {
@@ -27,6 +30,14 @@ public class Log {
         this.receiver = receiver;
         this.protocol = protocol;
         this.message = message;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Date getTimestamp() {
@@ -67,5 +78,17 @@ public class Log {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return "Log{" +
+                "id=" + id +
+                ", timestamp=" + timestamp +
+                ", sender='" + sender + '\'' +
+                ", receiver='" + receiver + '\'' +
+                ", protocol='" + protocol + '\'' +
+                ", message='" + message + '\'' +
+                '}';
     }
 }

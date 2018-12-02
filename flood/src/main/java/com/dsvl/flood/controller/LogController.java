@@ -16,7 +16,9 @@ public class LogController {
 
     @GetMapping("/log")
     public List<Log> getLogs() {
-        return Lists.newArrayList(logRepository.findAll());
+        List<Log> logs = Lists.newArrayList(logRepository.findAll());
+//        return Lists.newArrayList(logRepository.findAll());
+        return logs;
     }
 
     @Autowired
