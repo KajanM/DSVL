@@ -1,6 +1,5 @@
 name: dsvl
 
-//TCP
 server:
   port: 8080
 

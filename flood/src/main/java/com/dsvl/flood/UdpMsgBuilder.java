@@ -28,7 +28,7 @@ public class UdpMsgBuilder {
      * Returns a {@code String} of the format {@code length SER IP port file_name hops}
      *
      * @param nodeAddress
-     * @param nodeTcpPort
+     * @param nodeUdpPort
      * @param fileName
      * @param hops
      * @return the search message
