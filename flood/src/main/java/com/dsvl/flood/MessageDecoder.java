@@ -97,6 +97,8 @@ public final class MessageDecoder {
                     Node.latestSearchResults=new ArrayList<>();
                     String ip = st.nextToken();
                     int port = Integer.parseInt(st.nextToken());
+                    messageObject.setSearch_udp_Port(port);
+                    messageObject.setSearch_ip(ip);
                     String file_name = st.nextToken();
                     int hops = Integer.parseInt(st.nextToken());
                     messageObject.setFile_name(file_name);
@@ -109,8 +111,6 @@ public final class MessageDecoder {
                 messageObject.setMsgType(SEROK);
 
                 try {
-//                    length SEROK no_files IP port hops filename1 filename2 ... ...
-
 
                     int no_of_results = Integer.parseInt(st.nextToken());
                     String ip = st.nextToken();
@@ -121,8 +121,8 @@ public final class MessageDecoder {
                         Node.latestSearchResults.add(st.nextToken());
                     }
                     messageObject.setNo_of_results(no_of_results);
-                    messageObject.setIp(ip);
-                    messageObject.setTcpPort(tcp_port);
+                    messageObject.setSearch_result_ip(ip);
+                    messageObject.setSearch_result_tcp_Port(tcp_port);
                     messageObject.setHops(hops);
                 } catch (Exception e) {
                     //ignore

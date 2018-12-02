@@ -10,10 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 import java.util.List;
 
 import static com.dsvl.flood.Constants.Status.REGISTERED;
@@ -100,6 +97,8 @@ public class UdpServer implements CommandLineRunner {
                     MessageDecoder messageDecoder = MessageDecoder.getInstance();
                     try {
                         MessageObject msgObject = messageDecoder.decode(incomingPacket.getData(), incomingPacket.getLength());
+                        msgObject.setSenderIP(String.valueOf(incomingPacket.getAddress()));
+                        msgObject.setSenderPort(incomingPacket.getPort());
                         respond(msgObject, incomingPacket.getAddress(), incomingPacket.getPort());
                     } catch (ErroneousResponseException e) {
                         logger.info("Erroneous response received: {}", e.getMessage());
@@ -137,11 +136,11 @@ public class UdpServer implements CommandLineRunner {
 
             case "SER":
                 logger.info("Search query has found, file name: {}, hops {}, IP address: {}, port: {}",
-                        msgObject.getFile_name(), msgObject.getHops(),senderIP,senderPort);
+                        msgObject.getFile_name(), msgObject.getHops(),msgObject.getSearch_ip(),msgObject.getSearch_udp_Port());
                 try {
                     List<File> search_results = node.search(msgObject);
                     String file_name_string = "";
-                    String query = "SEROK" + " " + String.valueOf(search_results.size()) + " " + String.valueOf(senderIP) + " " + String.valueOf(senderPort) + " " + String.valueOf(msgObject.getHops()) + " ";
+                    String query = "SEROK" + " " + String.valueOf(search_results.size()) + " " + String.valueOf(node.getNodeAddress()) + " " + String.valueOf(node.getTcpPort()) + " " + String.valueOf(msgObject.getHops()) + " ";
                     for (int i = 0; i < search_results.size(); i++) {
                         String fn = search_results.get(i).getFileName();
                         fn = fn.replaceAll(" ", "_");
@@ -150,20 +149,27 @@ public class UdpServer implements CommandLineRunner {
                     query += file_name_string;
                     String length = String.format("%04d", query.length() + 4);
                     query = length + " " + query;
-                    System.out.println(query);
-                    System.out.println(senderIP);
-                    UdpHelper.sendMessage(query, senderIP, senderPort);
+//                    System.out.println(query);
+//                    System.out.println(senderIP);
+                    InetAddress inetAddress = InetAddress.getByName(msgObject.getSearch_ip());
+                    UdpHelper.sendMessage(query,inetAddress, msgObject.getSearch_udp_Port());
                 }catch(Exception e){
-                    String query="SEROK"+" "+"9998 "+ String.valueOf(senderIP) + " " + String.valueOf(senderPort) + " " + String.valueOf(msgObject.getHops());
-                    // some other error
-                    UdpHelper.sendMessage(query, senderIP, senderPort);
+                    String query="SEROK"+" "+"9998 "+ String.valueOf(node.getNodeAddress()) + " " + String.valueOf(node.getTcpPort()) + " " + String.valueOf(msgObject.getHops());
+
+                    InetAddress inetAddress = null;
+                    try {
+                        inetAddress = InetAddress.getByName(msgObject.getSearch_ip());
+                    } catch (UnknownHostException e1) {
+                        e1.printStackTrace();
+                    }
+                    UdpHelper.sendMessage(query, inetAddress, msgObject.getSearch_udp_Port());
                 }
 
             case "SEROK":
 
                 if (msgObject.getNo_of_results()==0){
                     logger.info("Search response has recieved  Number of results: {}, hops {}, IP address: {}, TCPport: {}",
-                            msgObject.getNo_of_results(), msgObject.getHops(),msgObject.getIp(),msgObject.getTcpPort());
+                            msgObject.getNo_of_results(), msgObject.getHops(),msgObject.getSearch_result_ip(),msgObject.getSearch_result_tcp_Port());
                 }
                 else if (msgObject.getNo_of_results()==9999){
                     logger.info("Search response has recieved:  failure due to node unreachable");
@@ -173,7 +179,8 @@ public class UdpServer implements CommandLineRunner {
                 }
                 else {
                     logger.info("Search response has recieved  Number of results: {}, hops {}, IP address: {}, TCPport: {}",
-                            msgObject.getNo_of_results(), msgObject.getHops(),msgObject.getIp(),msgObject.getTcpPort());
+                            msgObject.getNo_of_results(), msgObject.getHops(),msgObject.getSearch_result_ip(),msgObject.getSearch_result_tcp_Port());
+                    // creating the tcp connection and file transfering
                 }
 
             default:

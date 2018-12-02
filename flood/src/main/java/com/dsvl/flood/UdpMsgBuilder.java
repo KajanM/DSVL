@@ -28,12 +28,13 @@ public class UdpMsgBuilder {
      * Returns a {@code String} of the format {@code length SER IP port file_name hops}
      *
      * @param nodeAddress
-     * @param nodeTcpPort
+     * @param nodeUdpPort
      * @param fileName
      * @param hops
      * @return the search message
      */
-    public static String buildSearchMsg(String nodeAddress, Integer nodeTcpPort, String fileName, Integer hops) {
+    public static String buildSearchMsg(String nodeAddress, Integer nodeUdpPort, String fileName, Integer hops) {
+//        length SER IP port file_name hops
         /*
          * 4 - length
          * 5 - spaces
@@ -41,9 +42,9 @@ public class UdpMsgBuilder {
          * __
          * 12
          * */
-        int length = 12 + nodeAddress.length() + nodeTcpPort.toString().length() + fileName.length() + hops.toString().length();
+        int length = 12 + nodeAddress.length() + nodeUdpPort.toString().length() + fileName.length() + hops.toString().length();
 
-        return MessageFormat.format(SEARCH_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeTcpPort, fileName, hops);
+        return MessageFormat.format(SEARCH_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort, fileName, hops);
     }
 
     /**
