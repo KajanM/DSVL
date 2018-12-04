@@ -13,9 +13,7 @@ public final class MessageDecoder {
     public static final String REGOK = "REGOK";
     public static final String UNROK = "UNROK";
     public static final String JOIN = "JOIN";
-    public static final String JOINOK = "JOINOK";
     public static final String LEAVE = "LEAVE";
-    public static final String LEAVEOK = "LEAVEOK";
     public static final String SER = "SER";
     public static final String SEROK = "SEROK";
     public static final String ERROR = "ERROR";
@@ -132,6 +130,24 @@ public final class MessageDecoder {
                     String ip = st.nextToken();
                     int port = Integer.parseInt(st.nextToken());
                     messageObject.setLeavingNode(new Neighbour(InetAddress.getByName(ip), port));
+
+                    if (!st.hasMoreElements()) {
+                        return messageObject;
+                    }
+                    //expected ---> length LEAVE IP_address port_no 2 IP_address port_no IP_address port_no
+                    String numberOfAddressesSt = st.nextToken();
+                    if ("1".equals(numberOfAddressesSt) || "2".equals(numberOfAddressesSt)) {
+                        int numberOfNodes = Integer.parseInt(numberOfAddressesSt);
+                        List<Neighbour> addresses = new ArrayList<>();
+                        for (int i = 0; i < numberOfNodes; i++) {
+                            try {
+                                addresses.add(new Neighbour(InetAddress.getByName(st.nextToken()), Integer.parseInt(st.nextToken())));
+                            } catch (UnknownHostException e) {
+                                continue;
+                            }
+                        }
+                        messageObject.setLeaversNeighbors(addresses);
+                    }
                 } catch (UnknownHostException e) {
                     //ignore
                 }

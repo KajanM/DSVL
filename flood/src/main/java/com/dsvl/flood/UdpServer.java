@@ -80,7 +80,7 @@ public class UdpServer implements CommandLineRunner {
         try (DatagramSocket socket = new DatagramSocket(node.getNodeUdpPort())) {
             logger.debug("UDP server started for incoming messages at port {}", node.getNodeUdpPort());
             byte[] buffer;
-            while (true) {
+            while (!node.isLeaving) {
                 buffer = new byte[65536];
                 DatagramPacket incomingPacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(incomingPacket);
@@ -122,10 +122,17 @@ public class UdpServer implements CommandLineRunner {
          *
          * */
         switch (msgObject.getMsgType()) {
-            // TODO: UNREG, UNROK, SER, SEROK
+            // TODO: UNREG, UNROK
             case "JOIN":
                 Neighbour newNeighbour = msgObject.getJoinRequester();
                 if (newNeighbour != null) {
+                    List<Neighbour> neighbours = node.getNeighbours();
+                    for(Neighbour neighbour: neighbours){
+                        if(neighbour.getAddress() == newNeighbour.getAddress() && neighbour.getPort() == newNeighbour.getPort()){
+                            UdpHelper.sendMessage("0016 JOINOK 9999", senderIP, senderPort);
+                            return;
+                        }
+                    }
                     node.getNeighbours().add(newNeighbour);
                     logger.info("New node added as neighbor, IP address: {}, port: {}",
                             newNeighbour.getAddress(), newNeighbour.getPort());
@@ -188,13 +195,13 @@ public class UdpServer implements CommandLineRunner {
                         if (leavingNeighbour.getAddress().equals(neighbour.getAddress()) &&
                                 leavingNeighbour.getPort() == neighbour.getPort()) {
                             node.getNeighbours().remove(neighbour);
-                            logger.info("Neighbor, IP address: {}, port: {}, gracefully left the network",
-                                    neighbour.getAddress(), neighbour.getPort());
-                            UdpHelper.sendMessage("0013 LEAVEOK 0", senderIP, senderPort);
-                            if (node.getNeighbours().size() < 2) {
-                                logger.info("Less than 2 neighbours remaining, trying to add a new neighbour",
-                                        neighbour.getAddress(), neighbour.getPort());
-                                node.joinNetwork(node.getExistingNodes());
+                            logger.info("Neighbour {}:{}, gracefully left the network",
+                                    neighbour.getAddress().getHostName(), neighbour.getPort());
+                            UdpHelper.sendMessage("0014 LEAVEOK 0", senderIP, senderPort);
+                            List<Neighbour> leaversNeighbours = msgObject.getLeaversNeighbors();
+                            if (leaversNeighbours != null && leaversNeighbours.isEmpty() && node.getNeighbours().size()<4) {
+                                logger.info("Trying to add neighbours sent by the node just left");
+                                node.join(leaversNeighbours);
                             }
                             return;
                         }

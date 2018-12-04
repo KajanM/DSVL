@@ -1,6 +1,8 @@
 package com.dsvl.flood;
 
 import java.text.MessageFormat;
+import java.util.List;
+import java.util.Random;
 
 public class UdpMsgBuilder {
 
@@ -21,8 +23,10 @@ public class UdpMsgBuilder {
 
     /**
      * length LEAVE IP_address port_no
+     * or
+     * length LEAVE IP_address port_no 2 IP_address port_no IP_address port_no
      */
-    private static final String LEAVE_MSG_TEMPLATE = "{0} LEAVE {1} {2,number,#}";
+    private static final String LEAVE_MSG_TEMPLATE = "{0} LEAVE {1} {2,number,#}{3}";
 
     /**
      * Returns a {@code String} of the format {@code length SER IP port file_name hops}
@@ -87,12 +91,12 @@ public class UdpMsgBuilder {
     }
 
     /**
-     * Returns a {@code String} of the format {@code length LEAVE IP_address port_no}
+     * Returns a {@code String} of the format {@code length LEAVE IP_address port_no 2 IP_address port_no IP_address port_no}
      * @param nodeAddress my ip
      * @param nodeUdpPort my listening udp port
      * @return the leave message
      */
-    public static String buildLeaveMsg(String nodeAddress, Integer nodeUdpPort) {
+    public static String buildLeaveMsg(String nodeAddress, Integer nodeUdpPort, List<Neighbour> myNeighbours) {
         /*
          * 4 - length
          * 3 - spaces
@@ -101,6 +105,28 @@ public class UdpMsgBuilder {
          * 12
          * */
         int length = 12 + nodeAddress.length() + nodeUdpPort.toString().length();
-        return MessageFormat.format(LEAVE_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort);
+        String messageLatterPart = "";
+        if(myNeighbours.isEmpty()){
+            //do nothing
+        }
+        else if (myNeighbours.size() == 1) {
+            messageLatterPart += " 1 " + myNeighbours.get(0).getAddress().getHostName() + " " + myNeighbours.get(0).getPort();
+        } else if (myNeighbours.size() == 2) {
+            messageLatterPart += " 2 " + myNeighbours.get(0).getAddress().getHostName() + " " + myNeighbours.get(0).getPort()
+                    + " " + myNeighbours.get(1).getAddress().getHostName() + " " + myNeighbours.get(1).getPort();
+        } else {
+            Random r = new Random();
+            int Low = 0;
+            int High = myNeighbours.size();
+            int random_1 = r.nextInt(High-Low) + Low;
+            int random_2 = r.nextInt(High-Low) + Low;
+            while (random_1 == random_2) {
+                random_2 = r.nextInt(High-Low) + Low;
+            }
+            messageLatterPart += " 2 " + myNeighbours.get(random_1).getAddress().getHostName() + " " + myNeighbours.get(random_1).getPort()
+                    + " " + myNeighbours.get(random_2).getAddress().getHostName() + " " + myNeighbours.get(random_2).getPort();
+        }
+        length += messageLatterPart.length();
+        return MessageFormat.format(LEAVE_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort, messageLatterPart);
     }
 }

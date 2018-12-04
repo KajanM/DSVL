@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.SocketUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -46,6 +47,11 @@ public class Node {
      * with the bootstrap server or not.
      */
     private Boolean isRegistered = false;
+
+    /**
+     * {@code Boolean} value indicating if this {@code Nods} is leaving the network.
+     */
+    public volatile Boolean isLeaving = false;
 
     /**
      * The IP address of the {@code Node}.
@@ -165,6 +171,25 @@ public class Node {
         return false;
     }
 
+    public void join(List<Neighbour> someNodes) {
+        logger.info("Trying to join the network");
+        List<Neighbour> peers = new ArrayList<>(someNodes);
+
+        /*
+         * Tries to connect to a random peer, if successful removes from the local list
+         */
+        int tempUdpPort = SocketUtils.findAvailableUdpPort();
+        while (!peers.isEmpty() && neighbours.size() < 5) {
+            int peerIndex = (int) (Math.random() * peers.size()); // 0 <= peerIndex < (neighbour list length)
+            Neighbour peer = peers.get(peerIndex);
+            boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, tempUdpPort);
+            if (joinSuccessful) {
+                neighbours.add(peer);
+                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getPort());
+            }
+        }
+    }
+
 
     public List<File> search(MessageObject msgObject) throws NullPointerException {
         msgObject.setHops(msgObject.getHops()-1);
@@ -221,22 +246,28 @@ public class Node {
         }
     }
 
-    public boolean leaveNetwork(List<Neighbour> neighbours) {
+    public boolean leaveNetwork() {
         logger.info("Preparing to leave the network");
+        this.isLeaving = true;
         if(neighbours.isEmpty()) {
             logger.info("I am the only node in the network. Leaving gracefully.");
             return true;
         }
+        List<Neighbour> myNeighbours = new ArrayList<>();
+        myNeighbours.addAll(neighbours);
+        int tempUdpPort = SocketUtils.findAvailableUdpPort();
         for(Neighbour neighbour: neighbours) {
+            myNeighbours.remove(neighbour); //so the receiver address will not be added to the leave msg
             boolean leaveSuccessful = leaveService.leave(neighbour.getAddress(), neighbour.getPort(),
-                    nodeAddress, nodeUdpPort);
+                    nodeAddress, nodeUdpPort, tempUdpPort, myNeighbours);
+            myNeighbours.add(neighbour);
             if (leaveSuccessful) {
                 logger.info("Informed neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getPort());
             } else {
                 logger.info("Could not properly inform neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getPort());
             }
-            neighbours.remove(neighbour);
         }
+        neighbours.clear();
         if (neighbours.size() == 0) {
             logger.info("Finished informing the neighbours. Leaving gracefully.");
             return true;

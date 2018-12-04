@@ -2,6 +2,11 @@ package com.dsvl.flood;
 
 import org.junit.Test;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
 public class UdpMsgBuilderTest {
@@ -29,5 +34,15 @@ public class UdpMsgBuilderTest {
 
     @Test
     public void buildLeaveMsg() {
+        //length LEAVE IP_address port_no 2 IP_address port_no IP_address port_no
+        List<Neighbour> myNeighbours = new ArrayList<>();
+        try {
+            myNeighbours.add(new Neighbour(InetAddress.getByName("197.8.9.1"), 47657));
+            myNeighbours.add(new Neighbour(InetAddress.getByName("197.8.9.2"), 47657));
+        } catch (UnknownHostException e) {
+            //ignore
+        }
+        String leaveMsg = UdpMsgBuilder.buildLeaveMsg("127.0.0.1", 45555, myNeighbours);
+        assertEquals("0060 LEAVE 127.0.0.1 45555 2 197.8.9.1 47657 197.8.9.2 47657", leaveMsg);
     }
 }

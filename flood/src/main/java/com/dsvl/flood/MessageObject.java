@@ -7,6 +7,7 @@ public class MessageObject {
     private List<Neighbour> existingNodes;
     private Neighbour joinRequester;
     private Neighbour leavingNode;
+    private List<Neighbour> leaversNeighbors;
 
     private String file_name;
     private int hops;
@@ -154,5 +155,13 @@ public class MessageObject {
 
     public void setLeavingNode(Neighbour leavingNode) {
         this.leavingNode = leavingNode;
+    }
+
+    public List<Neighbour> getLeaversNeighbors() {
+        return leaversNeighbors;
+    }
+
+    public void setLeaversNeighbors(List<Neighbour> leaversNeighbors) {
+        this.leaversNeighbors = leaversNeighbors;
     }
 }
