@@ -132,14 +132,14 @@ public class UdpServer implements CommandLineRunner {
                 if (newNeighbour != null) {
                     List<Neighbour> neighbours = node.getNeighbours();
                     for(Neighbour neighbour: neighbours){
-                        if(neighbour.getAddress() == newNeighbour.getAddress() && neighbour.getUdpPort() == newNeighbour.getUdpPort()){
+                        if(neighbour.getAddress() == newNeighbour.getAddress() && neighbour.getPort() == newNeighbour.getPort()){
                             UdpHelper.sendMessage("0016 JOINOK 9999", senderIP, senderPort);
                             return;
                         }
                     }
                     node.getNeighbours().add(newNeighbour);
                     logger.info("New node added as neighbor, IP address: {}, port: {}",
-                            newNeighbour.getAddress(), newNeighbour.getUdpPort());
+                            newNeighbour.getAddress(), newNeighbour.getPort());
                     UdpHelper.sendMessage("0013 JOINOK 0", senderIP, senderPort);
                 } else {
                     UdpHelper.sendMessage("0016 JOINOK 9999", senderIP, senderPort);
@@ -197,10 +197,10 @@ public class UdpServer implements CommandLineRunner {
                 if (leavingNeighbour != null) {
                     for (Neighbour neighbour : node.getNeighbours()) {
                         if (leavingNeighbour.getAddress().equals(neighbour.getAddress()) &&
-                                leavingNeighbour.getUdpPort() == neighbour.getUdpPort()) {
+                                leavingNeighbour.getPort() == neighbour.getPort()) {
                             node.getNeighbours().remove(neighbour);
                             logger.info("Neighbour {}:{} gracefully left the network",
-                                    neighbour.getAddress().getHostName(), neighbour.getUdpPort());
+                                    neighbour.getAddress().getHostName(), neighbour.getPort());
                             UdpHelper.sendMessage("0014 LEAVEOK 0", senderIP, senderPort);
                             List<Neighbour> leaversNeighbours = msgObject.getLeaversNeighbors();
                             if (leaversNeighbours != null && leaversNeighbours.isEmpty() && node.getNeighbours().size()<4) {

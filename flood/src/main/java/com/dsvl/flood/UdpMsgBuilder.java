@@ -110,10 +110,10 @@ public class UdpMsgBuilder {
             //do nothing
         }
         else if (myNeighbours.size() == 1) {
-            messageLatterPart += " 1 " + myNeighbours.get(0).getAddress().getHostName() + " " + myNeighbours.get(0).getUdpPort();
+            messageLatterPart += " 1 " + myNeighbours.get(0).getAddress().getHostName() + " " + myNeighbours.get(0).getPort();
         } else if (myNeighbours.size() == 2) {
-            messageLatterPart += " 2 " + myNeighbours.get(0).getAddress().getHostName() + " " + myNeighbours.get(0).getUdpPort()
-                    + " " + myNeighbours.get(1).getAddress().getHostName() + " " + myNeighbours.get(1).getUdpPort();
+            messageLatterPart += " 2 " + myNeighbours.get(0).getAddress().getHostName() + " " + myNeighbours.get(0).getPort()
+                    + " " + myNeighbours.get(1).getAddress().getHostName() + " " + myNeighbours.get(1).getPort();
         } else {
             Random r = new Random();
             int Low = 0;
@@ -123,8 +123,8 @@ public class UdpMsgBuilder {
             while (random_1 == random_2) {
                 random_2 = r.nextInt(High-Low) + Low;
             }
-            messageLatterPart += " 2 " + myNeighbours.get(random_1).getAddress().getHostName() + " " + myNeighbours.get(random_1).getUdpPort()
-                    + " " + myNeighbours.get(random_2).getAddress().getHostName() + " " + myNeighbours.get(random_2).getUdpPort();
+            messageLatterPart += " 2 " + myNeighbours.get(random_1).getAddress().getHostName() + " " + myNeighbours.get(random_1).getPort()
+                    + " " + myNeighbours.get(random_2).getAddress().getHostName() + " " + myNeighbours.get(random_2).getPort();
         }
         length += messageLatterPart.length();
         return MessageFormat.format(LEAVE_MSG_TEMPLATE, String.format("%04d", length), nodeAddress, nodeUdpPort, messageLatterPart);

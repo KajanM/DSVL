@@ -153,10 +153,10 @@ public class Node {
         while (!peers.isEmpty()) {
             int peerIndex = (int) (Math.random() * peers.size()); // 0 <= peerIndex < (neighbour list length)
             Neighbour peer = peers.get(peerIndex);
-            boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getUdpPort(), nodeAddress, nodeUdpPort);
+            boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, nodeUdpPort);
             if (joinSuccessful) {
                 neighbours.add(peer);
-                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getUdpPort());
+                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getPort());
             }
             peers.remove(peerIndex);
             if (neighbours.size() == 2) {
@@ -182,10 +182,10 @@ public class Node {
         while (!peers.isEmpty() && neighbours.size() < 5) {
             int peerIndex = (int) (Math.random() * peers.size()); // 0 <= peerIndex < (neighbour list length)
             Neighbour peer = peers.get(peerIndex);
-            boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getUdpPort(), nodeAddress, tempUdpPort);
+            boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, tempUdpPort);
             if (joinSuccessful) {
                 neighbours.add(peer);
-                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getUdpPort());
+                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getPort());
             }
         }
     }
@@ -264,13 +264,13 @@ public class Node {
 
         for(Neighbour neighbour: neighbours) {
             myNeighbours.remove(neighbour); //so the receiver address will not be added to the leave msg
-            boolean leaveSuccessful = leaveService.leave(neighbour.getAddress(), neighbour.getUdpPort(),
+            boolean leaveSuccessful = leaveService.leave(neighbour.getAddress(), neighbour.getPort(),
                     nodeAddress, nodeUdpPort, myNeighbours);
             myNeighbours.add(neighbour);
             if (leaveSuccessful) {
-                logger.info("Informed neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getUdpPort());
+                logger.info("Informed neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getPort());
             } else {
-                logger.info("Could not properly inform neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getUdpPort());
+                logger.info("Could not properly inform neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getPort());
             }
         }
         neighbours.clear();

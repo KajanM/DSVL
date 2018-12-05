@@ -15,7 +15,7 @@ public class Neighbour {
 		return this.ipAddress;
 	}
 
-	public int getUdpPort(){
+	public int getPort(){
 		return this.udpPort;
 	}
 }
