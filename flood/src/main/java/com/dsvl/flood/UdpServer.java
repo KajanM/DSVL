@@ -239,7 +239,7 @@ public class UdpServer implements CommandLineRunner {
 
             case "PNGOK":
                 new Thread(() -> { // pingok is processed within a separate thread
-                    logger.info("PNGOK message recieved: SenderIP{}, Port {}",
+                    logger.info("PNGOK message recieved from {}:{}",
                             msgObject.getPingOkIP(), msgObject.getPingOkPort());
                         for (Neighbour j:node.getNeighbours()) {
                             if(j.getIpAddress().getHostName().equals(msgObject.getPingOkIP())){
