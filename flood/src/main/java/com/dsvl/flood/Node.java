@@ -158,11 +158,11 @@ public class Node {
         while (!peers.isEmpty()) {
             int peerIndex = (int) (Math.random() * peers.size()); // 0 <= peerIndex < (neighbour list length)
             Neighbour peer = peers.get(peerIndex);
-            boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, nodeUdpPort);
+            boolean joinSuccessful = joinService.join(peer.getIpAddress(), peer.getUdpPort(), nodeAddress, nodeUdpPort);
             if (joinSuccessful) {
                 neighbours.add(peer);
                 peer.settTL(5);
-                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getPort());
+                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getIpAddress(), peer.getUdpPort());
             }
             peers.remove(peerIndex);
             if (neighbours.size() == 2) {
@@ -188,10 +188,10 @@ public class Node {
         while (!peers.isEmpty() && neighbours.size() < 5) {
             int peerIndex = (int) (Math.random() * peers.size()); // 0 <= peerIndex < (neighbour list length)
             Neighbour peer = peers.get(peerIndex);
-            boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, tempUdpPort);
+            boolean joinSuccessful = joinService.join(peer.getIpAddress(), peer.getUdpPort(), nodeAddress, tempUdpPort);
             if (joinSuccessful) {
                 neighbours.add(peer);
-                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getPort());
+                logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getIpAddress(), peer.getUdpPort());
             }
         }
     }
@@ -216,11 +216,11 @@ public class Node {
                 if (tTL == 0) {
                     valuesToRemove.add(n);
 //                    neighbours.remove(n);
-                    logger.info("Neighbor eliminated, IP address: {}, port: {}", n.getAddress(), n.getPort());
+                    logger.info("Neighbor eliminated, IP address: {}, port: {}", n.getIpAddress(), n.getUdpPort());
                 } else {
                     n.settTL(tTL - 1);
-                    UdpHelper.sendMessage(query, n.getAddress(), n.getPort());
-                    logger.info("Sent ping message , IP address: {}, port: {}", n.getAddress(), n.getPort());
+                    UdpHelper.sendMessage(query, n.getIpAddress(), n.getUdpPort());
+                    logger.info("Sent ping message , IP address: {}, port: {}", n.getIpAddress(), n.getUdpPort());
                 }
             }
             neighbours.removeAll(valuesToRemove);
@@ -311,13 +311,13 @@ public class Node {
 
         for (Neighbour neighbour : neighbours) {
             myNeighbours.remove(neighbour); //so the receiver address will not be added to the leave msg
-            boolean leaveSuccessful = leaveService.leave(neighbour.getAddress(), neighbour.getPort(),
+            boolean leaveSuccessful = leaveService.leave(neighbour.getIpAddress(), neighbour.getUdpPort(),
                     nodeAddress, nodeUdpPort, myNeighbours);
             myNeighbours.add(neighbour);
             if (leaveSuccessful) {
-                logger.info("Informed neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getPort());
+                logger.info("Informed neighbour {}:{} about leaving", neighbour.getIpAddress(), neighbour.getUdpPort());
             } else {
-                logger.info("Could not properly inform neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getPort());
+                logger.info("Could not properly inform neighbour {}:{} about leaving", neighbour.getIpAddress(), neighbour.getUdpPort());
             }
         }
         neighbours.clear();
