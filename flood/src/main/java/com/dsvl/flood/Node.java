@@ -5,6 +5,7 @@ import com.dsvl.flood.service.JoinService;
 import com.dsvl.flood.service.LeaveService;
 import com.dsvl.flood.service.RegisterService;
 import com.dsvl.flood.service.SearchService;
+import com.dsvl.flood.service.UnregisterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,9 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
 
+import static com.dsvl.flood.Constants.Status.JOINED;
 import static com.dsvl.flood.Constants.Status.NOT_REGISTERED;
+import static com.dsvl.flood.Constants.Status.UNREGISTERED_AND_DISCONNECTED;
 
 
 /**
@@ -45,13 +48,13 @@ public class Node {
     private final int nodeTcpPort;
 
     /**
-     * {@code Boolean} value indicating if this {@code Nods} is registered
+     * {@code Boolean} value indicating if this {@code Node} is registered
      * with the bootstrap server or not.
      */
     private Boolean isRegistered = false;
 
     /**
-     * {@code Boolean} value indicating if this {@code Nods} is leaving the network.
+     * {@code Boolean} value indicating if this {@code Node} is leaving the network.
      */
     public volatile Boolean isLeaving = false;
 
@@ -103,6 +106,9 @@ public class Node {
     private SearchService searchService;
 
     @Autowired
+    private UnregisterService unregisterService;
+
+    @Autowired
     public Node(@Value("${bootstrap-server.address}") String bsIpValue,
                 @Value("${bootstrap-server.port}") int bsPort,
                 @Value("${name}") String name,
@@ -147,6 +153,7 @@ public class Node {
     public boolean joinNetwork(List<Neighbour> existingNodes) {
         logger.info("Trying to join the network");
         if (existingNodes.isEmpty()) {
+            status = JOINED;
             logger.info("I am the only node in the network");
             return true;
         }
@@ -165,12 +172,14 @@ public class Node {
                 logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getIpAddress(), peer.getUdpPort());
             }
             peers.remove(peerIndex);
-            if (neighbours.size() == 2) {
+            if (neighbours.size() == 2){
+                status = JOINED;
                 logger.info("Successfully joined the network");
                 return true;
             }
         }
         if (neighbours.size() > 0) {
+            status = JOINED;
             logger.info("Joined the network");
             return true;
         }
@@ -199,11 +208,8 @@ public class Node {
 
     public void sendPingMessage() {
         while (true) {
-            List<Neighbour> copyOfNeighbours = neighbours;
             List<Neighbour> valuesToRemove = new ArrayList<>();
-
             for (Neighbour n : neighbours) {
-
                 String key = "PNG";
                 String myip = nodeAddress.getHostAddress();
                 String myport = String.valueOf(nodeUdpPort);
@@ -215,7 +221,6 @@ public class Node {
 
                 if (tTL == 0) {
                     valuesToRemove.add(n);
-//                    neighbours.remove(n);
                     logger.info("Neighbor eliminated, IP address: {}, port: {}", n.getIpAddress(), n.getUdpPort());
                 } else {
                     n.settTL(tTL - 1);
@@ -302,8 +307,11 @@ public class Node {
         int tempUdpPort = SocketUtils.findAvailableUdpPort();
         UdpHelper.sendMessage("", nodeAddress, nodeUdpPort, tempUdpPort);
 
-        if (neighbours.isEmpty()) {
+        unregister();
+
+        if(neighbours.isEmpty()) {
             logger.info("I am the only node in the network. Leaving gracefully.");
+            status = UNREGISTERED_AND_DISCONNECTED;
             return true;
         }
         List<Neighbour> myNeighbours = new ArrayList<>();
@@ -323,8 +331,21 @@ public class Node {
         neighbours.clear();
         if (neighbours.size() == 0) {
             logger.info("Finished informing the neighbours. Leaving gracefully.");
+            status = UNREGISTERED_AND_DISCONNECTED;
             return true;
         }
+        status = UNREGISTERED_AND_DISCONNECTED;
+        return false;
+    }
+
+    private boolean unregister() {
+        boolean unregistered = unregisterService.unregister(bootstrapServerAddress, bootstrapServerPort,
+                nodeAddress, nodeUdpPort, name);
+        if(unregistered) {
+            logger.info("Successfully unregistered from the bootstrap server");
+            return true;
+        }
+        logger.info("Not able to unregister from bootstrap server. Skipping..");
         return false;
     }
 

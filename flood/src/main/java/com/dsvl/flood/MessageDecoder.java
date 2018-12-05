@@ -160,21 +160,25 @@ public final class MessageDecoder {
                     String noOfResults = st.nextToken();
                     String ip = st.nextToken();
                     int udp_port = Integer.parseInt(st.nextToken());
-                    String[] listOfNeighbours = st.nextToken().split("_");
 
+                    messageObject.setPingOkIP(ip);
+                    messageObject.setPingOkPort(udp_port);
+                    messageObject.setNo_of_results(Integer.parseInt(noOfResults));
                     List<Neighbour> neighboutList = new ArrayList<>();
+
+                    if (Integer.parseInt(noOfResults) == 0){
+                        messageObject.setRoutingList(neighboutList);
+                        return messageObject;
+                    }
+                    String[] listOfNeighbours = st.nextToken().split("_");
                     for (String str : listOfNeighbours) {
                         String[] str2 = str.split(":");
                         Neighbour n1 = new Neighbour(InetAddress.getByName(str2[0]), Integer.parseInt(str2[1]));
                         neighboutList.add(n1);
                     }
                     messageObject.setRoutingList(neighboutList);
-                    messageObject.setPingOkIP(ip);
-                    messageObject.setPingOkPort(udp_port);
-                    messageObject.setNo_of_results(Integer.parseInt(noOfResults));
-
                 } catch (Exception e) {
-
+                    //ignore
                 }
                 break;
         }

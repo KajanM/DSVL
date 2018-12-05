@@ -45,4 +45,11 @@ public class UdpMsgBuilderTest {
         String leaveMsg = UdpMsgBuilder.buildLeaveMsg("127.0.0.1", 45555, myNeighbours);
         assertEquals("0060 LEAVE 127.0.0.1 45555 2 197.8.9.1 47657 197.8.9.2 47657", leaveMsg);
     }
+
+    @Test
+    public void buildUnregisterMsg() {
+        //length UNREG IP_address port_no username
+        String unregMsg = UdpMsgBuilder.buildUnregisterMsg("127.0.0.1", 45555, "dsvl");
+        assertEquals("0031 UNREG 127.0.0.1 45555 dsvl", unregMsg);
+    }
 }
