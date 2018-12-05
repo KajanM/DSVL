@@ -10,7 +10,7 @@ public class UdpMsgBuilderTest {
     public void buildSearchMsg() {
         // length SER IP port file_name hops
         String serMsg = UdpMsgBuilder.buildSearchMsg("127.0.0.1", 45555, "Lord of the rings", 0);
-        assertEquals("0044 SER 127.0.0.1 45555 Lord_of_mario 0", serMsg);
+        assertEquals("0044 SER 127.0.0.1 45555 Lord of the rings 0", serMsg);
     }
 
     @Test
