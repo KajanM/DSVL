@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
 
@@ -95,17 +97,20 @@ public class Node {
                 @Value("${bootstrap-server.port}") int bsPort,
                 @Value("${name}") String name,
                 @Value("${server.port}") int nodeTcpPort,
-                @Value("${node.port}") int nodeUdpPort) throws UnknownHostException {
+                @Value("${node.port}") int nodeUdpPort) throws UnknownHostException, SocketException {
         bootstrapServerPort = bsPort;
         this.name = name;
         this.nodeTcpPort = nodeTcpPort;
 
         bootstrapServerAddress = InetAddress.getByName(bsIpValue);
-        nodeAddress = InetAddress.getByName("localhost");
+        try (final DatagramSocket socket = new DatagramSocket()) {
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            nodeAddress = socket.getLocalAddress();
+        }
 
         this.nodeUdpPort = nodeUdpPort;
 
-        latestSearchResults=new ArrayList<>();
+        latestSearchResults = new ArrayList<>();
         files = new ArrayList<>();
         initializeFiles();
         update_table();
@@ -162,13 +167,13 @@ public class Node {
     }
 
     public List<File> search(MessageObject msgObject) throws NullPointerException {
-        msgObject.setHops(msgObject.getHops()-1);
+        msgObject.setHops(msgObject.getHops() - 1);
         List<File> results = searchInLocalStore(msgObject.getFile_name());
 
-        if (msgObject.getHops()>0) {
-            try{
+        if (msgObject.getHops() > 0) {
+            try {
                 searchService.search(msgObject, neighbours, nodeAddress, nodeTcpPort);
-            }catch (Exception e){
+            } catch (Exception e) {
                 logger.error("Unable to propogate search to neighbour nodes", e);
 
             }
