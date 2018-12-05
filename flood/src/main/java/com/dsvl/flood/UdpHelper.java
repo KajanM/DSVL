@@ -122,7 +122,7 @@ public class UdpHelper {
         }catch (SocketTimeoutException e) {
             logger.info("Timeout while waiting to receive UDP message");
         } catch (SocketException e) {
-            logger.error("Unable to create a UDP receiving socket", e);
+            logger.error("Error while sending or receiving packet", e);
         } catch (IOException e) {
             logger.error("unable to send the message", e);
         }

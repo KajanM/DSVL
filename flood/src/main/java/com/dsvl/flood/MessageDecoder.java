@@ -13,9 +13,7 @@ public final class MessageDecoder {
     public static final String REGOK = "REGOK";
     public static final String UNROK = "UNROK";
     public static final String JOIN = "JOIN";
-    public static final String JOINOK = "JOINOK";
     public static final String LEAVE = "LEAVE";
-    public static final String LEAVEOK = "LEAVEOK";
     public static final String SER = "SER";
     public static final String SEROK = "SEROK";
     public static final String ERROR = "ERROR";
@@ -42,10 +40,14 @@ public final class MessageDecoder {
 
         StringTokenizer st = new StringTokenizer(s, " ");
 
+        MessageObject messageObject = new MessageObject();
+        if(st.countTokens() <2) {
+            messageObject.setMsgType("NONE");
+            return messageObject;
+        }
         String length = st.nextToken();
         String command = st.nextToken();
 
-        MessageObject messageObject = new MessageObject();
         switch (command) {
             case REGOK:
                 //expected response ---> length REGOK no_nodes IP_1 port_1 IP_2 port_2
@@ -80,7 +82,7 @@ public final class MessageDecoder {
                 }
                 break;
             case JOIN:
-                //expected response ---> length JOIN IP_address port_no
+                //expected ---> length JOIN IP_address port_no
                 messageObject.setMsgType(JOIN);
                 try {
                     String ip = st.nextToken();
@@ -109,15 +111,12 @@ public final class MessageDecoder {
                 break;
             case SEROK:
                 messageObject.setMsgType(SEROK);
-
                 try {
-
                     int no_of_results = Integer.parseInt(st.nextToken());
                     String ip = st.nextToken();
                     int tcp_port = Integer.parseInt(st.nextToken());
                     int hops = Integer.parseInt(st.nextToken())+1;
                     while(st.hasMoreTokens()){
-
                         Node.latestSearchResults.add(st.nextToken());
                     }
                     messageObject.setNo_of_results(no_of_results);
@@ -125,6 +124,35 @@ public final class MessageDecoder {
                     messageObject.setSearch_result_tcp_Port(tcp_port);
                     messageObject.setHops(hops);
                 } catch (Exception e) {
+                    //ignore
+                }
+                break;
+            case LEAVE:
+                //expected ---> length LEAVE IP_address port_no
+                messageObject.setMsgType(LEAVE);
+                try {
+                    String ip = st.nextToken();
+                    int port = Integer.parseInt(st.nextToken());
+                    messageObject.setLeavingNode(new Neighbour(InetAddress.getByName(ip), port));
+
+                    if (!st.hasMoreElements()) {
+                        return messageObject;
+                    }
+                    //expected ---> length LEAVE IP_address port_no 2 IP_address port_no IP_address port_no
+                    String numberOfAddressesSt = st.nextToken();
+                    if ("1".equals(numberOfAddressesSt) || "2".equals(numberOfAddressesSt)) {
+                        int numberOfNodes = Integer.parseInt(numberOfAddressesSt);
+                        List<Neighbour> addresses = new ArrayList<>();
+                        for (int i = 0; i < numberOfNodes; i++) {
+                            try {
+                                addresses.add(new Neighbour(InetAddress.getByName(st.nextToken()), Integer.parseInt(st.nextToken())));
+                            } catch (UnknownHostException e) {
+                                continue;
+                            }
+                        }
+                        messageObject.setLeaversNeighbors(addresses);
+                    }
+                } catch (UnknownHostException e) {
                     //ignore
                 }
                 break;

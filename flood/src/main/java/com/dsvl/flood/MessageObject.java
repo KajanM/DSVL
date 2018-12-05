@@ -6,6 +6,8 @@ public class MessageObject {
     private String msgType;
     private List<Neighbour> existingNodes;
     private Neighbour joinRequester;
+    private Neighbour leavingNode;
+    private List<Neighbour> leaversNeighbors;
 
     private String file_name;
     private int hops;
@@ -145,5 +147,21 @@ public class MessageObject {
 
     public void setSearch_result_tcp_Port(int search_result_tcp_Port) {
         this.search_result_tcp_Port = search_result_tcp_Port;
+    }
+
+    public Neighbour getLeavingNode() {
+        return leavingNode;
+    }
+
+    public void setLeavingNode(Neighbour leavingNode) {
+        this.leavingNode = leavingNode;
+    }
+
+    public List<Neighbour> getLeaversNeighbors() {
+        return leaversNeighbors;
+    }
+
+    public void setLeaversNeighbors(List<Neighbour> leaversNeighbors) {
+        this.leaversNeighbors = leaversNeighbors;
     }
 }
