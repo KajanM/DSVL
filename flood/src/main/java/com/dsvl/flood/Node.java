@@ -230,7 +230,7 @@ public class Node {
             }
 
             try {
-                Thread.sleep(30000); // Waits for 30 seconds
+                Thread.sleep(3000000); // Waits for 5 minutes
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
