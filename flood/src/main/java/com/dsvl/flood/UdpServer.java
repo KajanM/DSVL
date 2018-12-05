@@ -139,14 +139,14 @@ public class UdpServer implements CommandLineRunner {
                     newNeighbour.settTL(5);
                     List<Neighbour> neighbours = node.getNeighbours();
                     for(Neighbour neighbour: neighbours){
-                        if(neighbour.getAddress() == newNeighbour.getAddress() && neighbour.getPort() == newNeighbour.getPort()){
+                        if(neighbour.getIpAddress() == newNeighbour.getIpAddress() && neighbour.getUdpPort() == newNeighbour.getUdpPort()){
                             UdpHelper.sendMessage("0016 JOINOK 9999", senderIP, senderPort);
                             return;
                         }
                     }
                     node.getNeighbours().add(newNeighbour);
                     logger.info("New node added as neighbor, IP address: {}, port: {}",
-                            newNeighbour.getAddress(), newNeighbour.getPort());
+                            newNeighbour.getIpAddress(), newNeighbour.getUdpPort());
                     UdpHelper.sendMessage("0013 JOINOK 0", senderIP, senderPort);
                 } else {
                     UdpHelper.sendMessage("0016 JOINOK 9999", senderIP, senderPort);
@@ -213,14 +213,14 @@ public class UdpServer implements CommandLineRunner {
                 List<Neighbour> returnRoutingTable=new ArrayList<>();
 
                 for (Neighbour n: routingTable ) {
-                    if (!n.getAddress().toString().equals(msgObject.getSenderIP().toString())) { //overrride neighbours equals method
+                    if (!n.getIpAddress().toString().equals(msgObject.getSenderIP().toString())) { //overrride neighbours equals method
                         returnRoutingTable.add(n); // add all except message querried node
                     }
                 }
 
                 String routingString="";
                 for (Neighbour x:returnRoutingTable ) { // creating the query
-                    routingString+=x.getAddress().getHostName()+":"+String.valueOf(x.getPort())+"_";
+                    routingString+=x.getIpAddress().getHostName()+":"+String.valueOf(x.getUdpPort())+"_";
                 }
                 String command="PINGOK";
                 String noOfResults=String.valueOf(returnRoutingTable.size());
@@ -246,7 +246,7 @@ public class UdpServer implements CommandLineRunner {
                     logger.info("PNGOK message recieved: SenderIP{}, Port {}",
                             msgObject.getPingOkIP(), msgObject.getPingOkPort());
                         for (Neighbour j:node.getNeighbours()) {
-                            if(j.getAddress().getHostName().equals(msgObject.getPingOkIP())){
+                            if(j.getIpAddress().getHostName().equals(msgObject.getPingOkIP())){
                                 j.settTL(j.gettTL()+1);
                             }
                         }
@@ -254,7 +254,7 @@ public class UdpServer implements CommandLineRunner {
                         for (Neighbour i:msgObject.getRoutingList()) {
                             int count=0;
                             for (Neighbour j:node.getNeighbours()) {
-                                if(!i.getAddress().getHostName().equals(j.getAddress().getHostName())){
+                                if(!i.getIpAddress().getHostName().equals(j.getIpAddress().getHostName())){
                                     count+=1;
                                 }
                             }
@@ -272,11 +272,11 @@ public class UdpServer implements CommandLineRunner {
                 Neighbour leavingNeighbour = msgObject.getLeavingNode();
                 if (leavingNeighbour != null) {
                     for (Neighbour neighbour : node.getNeighbours()) {
-                        if (leavingNeighbour.getAddress().equals(neighbour.getAddress()) &&
-                                leavingNeighbour.getPort() == neighbour.getPort()) {
+                        if (leavingNeighbour.getIpAddress().equals(neighbour.getIpAddress()) &&
+                                leavingNeighbour.getUdpPort() == neighbour.getUdpPort()) {
                             node.getNeighbours().remove(neighbour);
                             logger.info("Neighbour {}:{} gracefully left the network",
-                                    neighbour.getAddress().getHostName(), neighbour.getPort());
+                                    neighbour.getIpAddress().getHostName(), neighbour.getUdpPort());
                             UdpHelper.sendMessage("0014 LEAVEOK 0", senderIP, senderPort);
                             List<Neighbour> leaversNeighbours = msgObject.getLeaversNeighbors();
                             if (leaversNeighbours != null && leaversNeighbours.isEmpty() && node.getNeighbours().size()<4) {

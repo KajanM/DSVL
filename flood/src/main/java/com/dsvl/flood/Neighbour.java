@@ -12,11 +12,11 @@ public class Neighbour {
 		this.udpPort = udpPort;
 	}	
 
-	public InetAddress getAddress(){
+	public InetAddress getIpAddress(){
 		return this.ipAddress;
 	}
 
-	public int getPort(){
+	public int getUdpPort(){
 		return this.udpPort;
 	}
 
