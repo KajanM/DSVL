@@ -80,7 +80,7 @@ public class Node {
     /**
      * List of neighbours that this {@code Node} has directly connected to
      */
-    private final List<Neighbour> neighbours;
+    private static volatile List<Neighbour> neighbours;
     private static Map<Integer, HashSet> map;
     public static ArrayList<String> latestSearchResults;
 
@@ -161,6 +161,7 @@ public class Node {
             boolean joinSuccessful = joinService.join(peer.getAddress(), peer.getPort(), nodeAddress, nodeUdpPort);
             if (joinSuccessful) {
                 neighbours.add(peer);
+                peer.settTL(5);
                 logger.info("New node added as neighbor, IP address: {}, port: {}", peer.getAddress(), peer.getPort());
             }
             peers.remove(peerIndex);
@@ -196,7 +197,48 @@ public class Node {
     }
 
 
-    public List<File> search(MessageObject msgObject) throws NullPointerException {
+    public void sendPingMessage() {
+        while (true) {
+            List<Neighbour> copyOfNeighbours = neighbours;
+            List<Neighbour> valuesToRemove = new ArrayList<>();
+
+            for (Neighbour n : neighbours) {
+
+                String key = "PNG";
+                String myip = nodeAddress.toString();
+                String myport = String.valueOf(nodeUdpPort);
+                int tTL = n.gettTL();
+
+                String query = key + " " + myip + " " + myport;
+                String length = String.format("%04d", query.length() + 4);
+                query = length + " " + query;
+
+                if (tTL == 0) {
+                    valuesToRemove.add(n);
+//                    neighbours.remove(n);
+                    logger.info("Neighbor eliminated, IP address: {}, port: {}", n.getAddress(), n.getPort());
+                } else {
+                    n.settTL(tTL - 1);
+                    UdpHelper.sendMessage(query, n.getAddress(), n.getPort());
+                    logger.info("Sent ping message , IP address: {}, port: {}", n.getAddress(), n.getPort());
+                }
+            }
+            neighbours.removeAll(valuesToRemove);
+
+            if (neighbours.size() == 0) {
+                logger.info("No neighbours to ping: ");
+            }
+
+            try {
+                Thread.sleep(30000); // Waits for 30 seconds
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public List<File> search(MessageObject msgObject) {
         msgObject.setHops(msgObject.getHops() - 1);
         List<File> results = searchInLocalStore(msgObject.getFile_name());
 
@@ -260,14 +302,14 @@ public class Node {
         int tempUdpPort = SocketUtils.findAvailableUdpPort();
         UdpHelper.sendMessage("", nodeAddress, nodeUdpPort, tempUdpPort);
 
-        if(neighbours.isEmpty()) {
+        if (neighbours.isEmpty()) {
             logger.info("I am the only node in the network. Leaving gracefully.");
             return true;
         }
         List<Neighbour> myNeighbours = new ArrayList<>();
         myNeighbours.addAll(neighbours);
 
-        for(Neighbour neighbour: neighbours) {
+        for (Neighbour neighbour : neighbours) {
             myNeighbours.remove(neighbour); //so the receiver address will not be added to the leave msg
             boolean leaveSuccessful = leaveService.leave(neighbour.getAddress(), neighbour.getPort(),
                     nodeAddress, nodeUdpPort, myNeighbours);

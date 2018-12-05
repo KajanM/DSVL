@@ -6,6 +6,7 @@ public class MessageObject {
     private String msgType;
     private List<Neighbour> existingNodes;
     private Neighbour joinRequester;
+    private List<Neighbour> routingList;
     private Neighbour leavingNode;
     private List<Neighbour> leaversNeighbors;
 
@@ -21,6 +22,10 @@ public class MessageObject {
     private String senderIP;
     private String search_result_ip;
     private int search_result_tcp_Port;
+    private String pingIP;
+    private int pingPort;
+    private String pingOkIP;
+    private int pingOkPort;
 
 
 
@@ -149,6 +154,14 @@ public class MessageObject {
         this.search_result_tcp_Port = search_result_tcp_Port;
     }
 
+    public List<Neighbour> getRoutingList() {
+        return routingList;
+    }
+
+    public void setRoutingList(List<Neighbour> routingList) {
+        this.routingList = routingList;
+    }
+
     public Neighbour getLeavingNode() {
         return leavingNode;
     }
@@ -163,5 +176,38 @@ public class MessageObject {
 
     public void setLeaversNeighbors(List<Neighbour> leaversNeighbors) {
         this.leaversNeighbors = leaversNeighbors;
+    }
+
+    public String getPingIP() {
+        return pingIP;
+    }
+
+    public void setPingIP(String pingIP) {
+        this.pingIP = pingIP;
+    }
+
+
+    public int getPingPort() {
+        return pingPort;
+    }
+
+    public void setPingPort(int pingPort) {
+        this.pingPort = pingPort;
+    }
+
+    public int getPingOkPort() {
+        return pingOkPort;
+    }
+
+    public void setPingOkPort(int pingOkPort) {
+        this.pingOkPort = pingOkPort;
+    }
+
+    public String getPingOkIP() {
+        return pingOkIP;
+    }
+
+    public void setPingOkIP(String pingOkIP) {
+        this.pingOkIP = pingOkIP;
     }
 }

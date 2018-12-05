@@ -6,7 +6,13 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 public class NodeTest {
 
     @Test
@@ -44,6 +50,58 @@ public class NodeTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
+    }
+
+    @Test
+    @Ignore
+    public void searchForExistingFileInTheNode() throws SocketException {
+        MessageObject msgObj = new MessageObject();
+
+        Node.latestSearchResults = new ArrayList<>();
+
+        String ip = "127.0.0.1";
+        int udpPort = Integer.parseInt("44444");
+        String file_name = "Mario";
+        String hops = "2";
+        int hopss = Integer.parseInt(hops);
+        msgObj.setSearch_udp_Port(udpPort);
+        msgObj.setSearch_ip(ip);
+        msgObj.setFile_name(file_name);
+        msgObj.setHops(hopss);
+
+        try {
+            Node node = new Node("127.0.0.1", 55555, "DSVL", 8080, 44444);
+            List<File> search_results = node.search(msgObj);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void searchForNonExistingFileInTheNode() throws SocketException {
+        MessageObject msgObj = new MessageObject();
+
+        Node.latestSearchResults = new ArrayList<>();
+
+        String ip = "127.0.0.1";
+        int udpPort = Integer.parseInt("44444");
+        String file_name = "Marioo";
+        String hops = "2";
+        int hopss = Integer.parseInt(hops);
+        msgObj.setSearch_udp_Port(udpPort);
+        msgObj.setSearch_ip(ip);
+        msgObj.setFile_name(file_name);
+        msgObj.setHops(hopss);
+
+        try {
+            Node node = new Node("127.0.0.1", 55555, "DSVL", 4500, 45555);
+            List<File> search_results = node.search(msgObj);
+            assertEquals(search_results.size(), 0);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
