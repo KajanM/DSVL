@@ -19,6 +19,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.*;
 
+import static com.dsvl.flood.Constants.Status.JOINED;
 import static com.dsvl.flood.Constants.Status.NOT_REGISTERED;
 import static com.dsvl.flood.Constants.Status.UNREGISTERED_AND_DISCONNECTED;
 
@@ -152,6 +153,7 @@ public class Node {
     public boolean joinNetwork(List<Neighbour> existingNodes) {
         logger.info("Trying to join the network");
         if (existingNodes.isEmpty()) {
+            status = JOINED;
             logger.info("I am the only node in the network");
             return true;
         }
@@ -171,11 +173,13 @@ public class Node {
             }
             peers.remove(peerIndex);
             if (neighbours.size() == 2){
+                status = JOINED;
                 logger.info("Successfully joined the network");
                 return true;
             }
         }
         if (neighbours.size() > 0) {
+            status = JOINED;
             logger.info("Joined the network");
             return true;
         }
