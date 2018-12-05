@@ -1,15 +1,11 @@
 package com.dsvl.flood;
 
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
-
-import static org.junit.Assert.*;
+import java.net.*;
 
 public class NodeTest {
 
@@ -49,5 +45,19 @@ public class NodeTest {
             e.printStackTrace();
         }
 
+    }
+
+    /**
+     * @throws UnknownHostException
+     * @throws SocketException
+     */
+    @Test
+    @Ignore
+    public void testRealIpAddress() throws UnknownHostException, SocketException {
+        try (final DatagramSocket socket = new DatagramSocket()) {
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            String ip = socket.getLocalAddress().getHostAddress();
+            Assert.assertEquals("10.10.2.160", ip);
+        }
     }
 }
