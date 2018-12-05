@@ -40,10 +40,14 @@ public final class MessageDecoder {
 
         StringTokenizer st = new StringTokenizer(s, " ");
 
+        MessageObject messageObject = new MessageObject();
+        if(st.countTokens() <2) {
+            messageObject.setMsgType("NONE");
+            return messageObject;
+        }
         String length = st.nextToken();
         String command = st.nextToken();
 
-        MessageObject messageObject = new MessageObject();
         switch (command) {
             case REGOK:
                 //expected response ---> length REGOK no_nodes IP_1 port_1 IP_2 port_2

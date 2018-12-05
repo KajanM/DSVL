@@ -248,18 +248,24 @@ public class Node {
 
     public boolean leaveNetwork() {
         logger.info("Preparing to leave the network");
-        this.isLeaving = true;
+
+        this.isLeaving = true; //to break the ever running server while loop
+
+        //releasing the ever running udp port
+        int tempUdpPort = SocketUtils.findAvailableUdpPort();
+        UdpHelper.sendMessage("", nodeAddress, nodeUdpPort, tempUdpPort);
+
         if(neighbours.isEmpty()) {
             logger.info("I am the only node in the network. Leaving gracefully.");
             return true;
         }
         List<Neighbour> myNeighbours = new ArrayList<>();
         myNeighbours.addAll(neighbours);
-        int tempUdpPort = SocketUtils.findAvailableUdpPort();
+
         for(Neighbour neighbour: neighbours) {
             myNeighbours.remove(neighbour); //so the receiver address will not be added to the leave msg
             boolean leaveSuccessful = leaveService.leave(neighbour.getAddress(), neighbour.getPort(),
-                    nodeAddress, nodeUdpPort, tempUdpPort, myNeighbours);
+                    nodeAddress, nodeUdpPort, myNeighbours);
             myNeighbours.add(neighbour);
             if (leaveSuccessful) {
                 logger.info("Informed neighbour {}:{} about leaving", neighbour.getAddress(), neighbour.getPort());

@@ -11,10 +11,9 @@ public interface LeaveService {
      * @param neighbourAddress neighbour to inform
      * @param neighbourPort    neighbour's port
      * @param nodeAddress my ip
-     * @param nodePort my udpPort - to create msg
-     * @param tempUdpPort my tempUdpPort - to send msg
+     * @param nodePort my udpPort
      * @param myNeighbours my neighbours
      */
     Boolean leave(InetAddress neighbourAddress, Integer neighbourPort,
-                  InetAddress nodeAddress, Integer nodePort, Integer tempUdpPort, List<Neighbour> myNeighbours);
+                  InetAddress nodeAddress, Integer nodePort, List<Neighbour> myNeighbours);
 }

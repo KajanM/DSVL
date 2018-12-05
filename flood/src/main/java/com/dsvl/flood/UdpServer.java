@@ -80,7 +80,11 @@ public class UdpServer implements CommandLineRunner {
         try (DatagramSocket socket = new DatagramSocket(node.getNodeUdpPort())) {
             logger.debug("UDP server started for incoming messages at port {}", node.getNodeUdpPort());
             byte[] buffer;
-            while (!node.isLeaving) {
+            while (true) {
+                if (node.isLeaving) {
+                    logger.debug("Stopping ever running UDP server port at {}", node.getNodeUdpPort());
+                    break;
+                }
                 buffer = new byte[65536];
                 DatagramPacket incomingPacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(incomingPacket);
@@ -195,7 +199,7 @@ public class UdpServer implements CommandLineRunner {
                         if (leavingNeighbour.getAddress().equals(neighbour.getAddress()) &&
                                 leavingNeighbour.getPort() == neighbour.getPort()) {
                             node.getNeighbours().remove(neighbour);
-                            logger.info("Neighbour {}:{}, gracefully left the network",
+                            logger.info("Neighbour {}:{} gracefully left the network",
                                     neighbour.getAddress().getHostName(), neighbour.getPort());
                             UdpHelper.sendMessage("0014 LEAVEOK 0", senderIP, senderPort);
                             List<Neighbour> leaversNeighbours = msgObject.getLeaversNeighbors();
@@ -208,6 +212,9 @@ public class UdpServer implements CommandLineRunner {
                     }
                 }
                 UdpHelper.sendMessage("0016 LEAVEOK 9999", senderIP, senderPort);
+                break;
+            case "NONE":
+                //ignore
                 break;
             default:
                 UdpHelper.sendMessage("0010 ERROR", senderIP, senderPort);
