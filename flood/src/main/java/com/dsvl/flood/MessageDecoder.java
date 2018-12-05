@@ -17,6 +17,8 @@ public final class MessageDecoder {
     public static final String SER = "SER";
     public static final String SEROK = "SEROK";
     public static final String ERROR = "ERROR";
+    public static final String PNG = "PNG";
+    public static final String PNGOK = "PNGOK";
 
     private static volatile MessageDecoder instance = null;
 
@@ -154,6 +156,43 @@ public final class MessageDecoder {
                     }
                 } catch (UnknownHostException e) {
                     //ignore
+                }
+                break;
+
+            case PNG:
+                messageObject.setMsgType(PNG);
+                try{
+                    String ip = st.nextToken();
+                    int udp_port = Integer.parseInt(st.nextToken());
+
+                    messageObject.setPingIP(ip);
+                    messageObject.setPingPort(udp_port);
+                }catch (Exception e){
+
+                }
+                break;
+
+            case PNGOK:
+                messageObject.setMsgType(PNGOK);
+                try{
+                    String noOfResults=st.nextToken();
+                    String ip = st.nextToken();
+                    int udp_port = Integer.parseInt(st.nextToken());
+                    String[] listOfNeighbours=st.nextToken().split("_");
+
+                    List<Neighbour> neighboutList=new ArrayList<>();
+                    for (String str:listOfNeighbours) {
+                        String[] str2=str.split(":");
+                        Neighbour n1=new Neighbour(InetAddress.getByName(str2[0]) ,Integer.parseInt(str2[1]));
+                        neighboutList.add(n1);
+                    }
+                    messageObject.setRoutingList(neighboutList);
+                    messageObject.setPingOkIP(ip);
+                    messageObject.setPingOkPort(udp_port);
+                    messageObject.setNo_of_results(Integer.parseInt(noOfResults));
+
+                }catch (Exception e){
+
                 }
                 break;
         }
