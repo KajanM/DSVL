@@ -267,7 +267,7 @@ public class UdpServer implements CommandLineRunner {
 //                    newNeighbours; TODO subhashini this is the unique neighbours list you can call your function here and input this list as a paremeter
 
                 }).start();
-
+                break;
             case "LEAVE":
                 Neighbour leavingNeighbour = msgObject.getLeavingNode();
                 if (leavingNeighbour != null) {
