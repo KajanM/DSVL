@@ -28,11 +28,10 @@ public class RegisterServiceImpl implements RegisterService {
         if (responsePacket.getAddress() == null) { // no response from bootstrap server
             return false;
         }
-        MessageDecoder messageDecoder = MessageDecoder.getInstance();
         MessageObject response;
         try {
             //here the data looks like: length REGOK no_nodes IP_1 port_1 IP_2 port_2
-            response = messageDecoder.decode(responsePacket.getData(), responsePacket.getLength());
+            response = MessageDecoder.decode(responsePacket.getData(), responsePacket.getLength());
         } catch (ErroneousResponseException e) { // error response from bootstrap server
             logger.error(e.getMessage());
             return false;

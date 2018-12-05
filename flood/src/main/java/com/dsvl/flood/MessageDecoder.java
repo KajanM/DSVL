@@ -1,7 +1,6 @@
 package com.dsvl.flood;
 
 import com.dsvl.flood.exceptions.ErroneousResponseException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -20,30 +19,13 @@ public final class MessageDecoder {
     public static final String PNG = "PNG";
     public static final String PNGOK = "PNGOK";
 
-    private static volatile MessageDecoder instance = null;
-
-    private MessageDecoder() {}
-
-    public static MessageDecoder getInstance() {
-        if (instance == null) {
-            synchronized(MessageDecoder.class) {
-                if (instance == null) {
-                    instance = new MessageDecoder();
-                }
-            }
-        }
-        return instance;
-    }
-
-//    public MessageObject
-
-    public MessageObject decode(byte[] data, int dataLength) throws ErroneousResponseException {
+    public static MessageObject decode(byte[] data, int dataLength) throws ErroneousResponseException {
         String s = new String(data, 0, dataLength);
 
         StringTokenizer st = new StringTokenizer(s, " ");
 
         MessageObject messageObject = new MessageObject();
-        if(st.countTokens() <2) {
+        if (st.countTokens() < 2) {
             messageObject.setMsgType("NONE");
             return messageObject;
         }
@@ -98,7 +80,7 @@ public final class MessageDecoder {
                 messageObject.setMsgType(SER);
 
                 try {
-                    Node.latestSearchResults=new ArrayList<>();
+                    Node.latestSearchResults = new ArrayList<>();
                     String ip = st.nextToken();
                     int port = Integer.parseInt(st.nextToken());
                     messageObject.setSearch_udp_Port(port);
@@ -117,8 +99,8 @@ public final class MessageDecoder {
                     int no_of_results = Integer.parseInt(st.nextToken());
                     String ip = st.nextToken();
                     int tcp_port = Integer.parseInt(st.nextToken());
-                    int hops = Integer.parseInt(st.nextToken())+1;
-                    while(st.hasMoreTokens()){
+                    int hops = Integer.parseInt(st.nextToken()) + 1;
+                    while (st.hasMoreTokens()) {
                         Node.latestSearchResults.add(st.nextToken());
                     }
                     messageObject.setNo_of_results(no_of_results);
@@ -161,29 +143,29 @@ public final class MessageDecoder {
 
             case PNG:
                 messageObject.setMsgType(PNG);
-                try{
+                try {
                     String ip = st.nextToken();
                     int udp_port = Integer.parseInt(st.nextToken());
 
                     messageObject.setPingIP(ip);
                     messageObject.setPingPort(udp_port);
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
                 break;
 
             case PNGOK:
                 messageObject.setMsgType(PNGOK);
-                try{
-                    String noOfResults=st.nextToken();
+                try {
+                    String noOfResults = st.nextToken();
                     String ip = st.nextToken();
                     int udp_port = Integer.parseInt(st.nextToken());
-                    String[] listOfNeighbours=st.nextToken().split("_");
+                    String[] listOfNeighbours = st.nextToken().split("_");
 
-                    List<Neighbour> neighboutList=new ArrayList<>();
-                    for (String str:listOfNeighbours) {
-                        String[] str2=str.split(":");
-                        Neighbour n1=new Neighbour(InetAddress.getByName(str2[0]) ,Integer.parseInt(str2[1]));
+                    List<Neighbour> neighboutList = new ArrayList<>();
+                    for (String str : listOfNeighbours) {
+                        String[] str2 = str.split(":");
+                        Neighbour n1 = new Neighbour(InetAddress.getByName(str2[0]), Integer.parseInt(str2[1]));
                         neighboutList.add(n1);
                     }
                     messageObject.setRoutingList(neighboutList);
@@ -191,7 +173,7 @@ public final class MessageDecoder {
                     messageObject.setPingOkPort(udp_port);
                     messageObject.setNo_of_results(Integer.parseInt(noOfResults));
 
-                }catch (Exception e){
+                } catch (Exception e) {
 
                 }
                 break;

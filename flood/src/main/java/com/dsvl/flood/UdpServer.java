@@ -104,9 +104,8 @@ public class UdpServer implements CommandLineRunner {
                     );
                     logRepository.save(log);
                     logger.info("Received UDP message from {}:{} {}", incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), receivedData);
-                    MessageDecoder messageDecoder = MessageDecoder.getInstance();
                     try {
-                        MessageObject msgObject = messageDecoder.decode(incomingPacket.getData(), incomingPacket.getLength());
+                        MessageObject msgObject = MessageDecoder.decode(incomingPacket.getData(), incomingPacket.getLength());
                         msgObject.setSenderIP(String.valueOf(incomingPacket.getAddress()));
                         msgObject.setSenderPort(incomingPacket.getPort());
                         respond(msgObject, incomingPacket.getAddress(), incomingPacket.getPort());
@@ -154,54 +153,51 @@ public class UdpServer implements CommandLineRunner {
                 break;
             case "SER":
                 logger.info("Search query has found, file name: {}, hops {}, IP address: {}, port: {}",
-                        msgObject.getFile_name(), msgObject.getHops(),msgObject.getSearch_ip(),msgObject.getSearch_udp_Port());
+                        msgObject.getFile_name(), msgObject.getHops(), msgObject.getSearch_ip(), msgObject.getSearch_udp_Port());
                 new Thread(() -> { // search is done within a seperete thread
-                try {
+                    try {
 
-                    List<File> search_results = node.search(msgObject);
-                    String file_name_string = "";
-                    String query = "SEROK" + " " + String.valueOf(search_results.size()) + " " + String.valueOf(node.getNodeAddress()) + " " + String.valueOf(node.getTcpPort()) + " " + String.valueOf(msgObject.getHops()) + " ";
-                    for (int i = 0; i < search_results.size(); i++) {
-                        String fn = search_results.get(i).getFileName();
-                        fn = fn.replaceAll(" ", "_");
-                        file_name_string += fn + " ";
-                    }
-                    query += file_name_string;
-                    String length = String.format("%04d", query.length() + 4);
-                    query = length + " " + query;
+                        List<File> search_results = node.search(msgObject);
+                        String file_name_string = "";
+                        String query = "SEROK" + " " + String.valueOf(search_results.size()) + " " + String.valueOf(node.getNodeAddress()) + " " + String.valueOf(node.getTcpPort()) + " " + String.valueOf(msgObject.getHops()) + " ";
+                        for (int i = 0; i < search_results.size(); i++) {
+                            String fn = search_results.get(i).getFileName();
+                            fn = fn.replaceAll(" ", "_");
+                            file_name_string += fn + " ";
+                        }
+                        query += file_name_string;
+                        String length = String.format("%04d", query.length() + 4);
+                        query = length + " " + query;
 //                    System.out.println(query);
 //                    System.out.println(senderIP);
-                    InetAddress inetAddress = InetAddress.getByName(msgObject.getSearch_ip());
-                    UdpHelper.sendMessage(query,inetAddress, msgObject.getSearch_udp_Port());
-                }catch(Exception e){
+                        InetAddress inetAddress = InetAddress.getByName(msgObject.getSearch_ip());
+                        UdpHelper.sendMessage(query, inetAddress, msgObject.getSearch_udp_Port());
+                    } catch (Exception e) {
 
-                    String query="SEROK"+" "+"9998 "+ String.valueOf(node.getNodeAddress()) + " " + String.valueOf(node.getTcpPort()) + " " + String.valueOf(msgObject.getHops());
-                    String length = String.format("%04d", query.length() + 4);
-                    query = length + " " + query;
+                        String query = "SEROK" + " " + "9998 " + String.valueOf(node.getNodeAddress()) + " " + String.valueOf(node.getTcpPort()) + " " + String.valueOf(msgObject.getHops());
+                        String length = String.format("%04d", query.length() + 4);
+                        query = length + " " + query;
 
-                    InetAddress inetAddress = null;
-                    try {
-                        inetAddress = InetAddress.getByName(msgObject.getSearch_ip());
-                    } catch (UnknownHostException e1) {
-                        e1.printStackTrace();
+                        InetAddress inetAddress = null;
+                        try {
+                            inetAddress = InetAddress.getByName(msgObject.getSearch_ip());
+                        } catch (UnknownHostException e1) {
+                            e1.printStackTrace();
+                        }
+                        UdpHelper.sendMessage(query, inetAddress, msgObject.getSearch_udp_Port());
                     }
-                    UdpHelper.sendMessage(query, inetAddress, msgObject.getSearch_udp_Port());
-                }
-        }).start();
+                }).start();
 
             case "SEROK":
 
 
-
-                if (msgObject.getNo_of_results()==9999){
+                if (msgObject.getNo_of_results() == 9999) {
                     logger.info("Search response has recieved:  failure due to node unreachable");
-                }
-                else if (msgObject.getNo_of_results()==9998){
-                logger.info("Search response has recieved:  some other error");
-                }
-                else {
+                } else if (msgObject.getNo_of_results() == 9998) {
+                    logger.info("Search response has recieved:  some other error");
+                } else {
                     logger.info("Search response has recieved  Number of results: {}, hops {}, IP address: {}, TCPport: {}",
-                            msgObject.getNo_of_results(), msgObject.getHops(),msgObject.getSearch_result_ip(),msgObject.getSearch_result_tcp_Port());
+                            msgObject.getNo_of_results(), msgObject.getHops(), msgObject.getSearch_result_ip(), msgObject.getSearch_result_tcp_Port());
                     // creating the tcp connection and file transfering
                 }
 
@@ -209,8 +205,8 @@ public class UdpServer implements CommandLineRunner {
                 new Thread(() -> { // ping is done within a seperete thread
                     logger.info("PNG message recieved: SenderIP: {}, Port: {}",
                             msgObject.getPingIP(), msgObject.getPingPort());
-                List<Neighbour> routingTable=node.getNeighbours();
-                List<Neighbour> returnRoutingTable=new ArrayList<>();
+                    List<Neighbour> routingTable = node.getNeighbours();
+                    List<Neighbour> returnRoutingTable = new ArrayList<>();
 
                 for (Neighbour n: routingTable ) {
                     if (!n.getIpAddress().toString().equals(msgObject.getSenderIP().toString())) { //overrride neighbours equals method
@@ -222,22 +218,22 @@ public class UdpServer implements CommandLineRunner {
                 for (Neighbour x:returnRoutingTable ) { // creating the query
                     routingString+=x.getIpAddress().getHostName()+":"+String.valueOf(x.getUdpPort())+"_";
                 }
-                String command="PINGOK";
+                String command="PNGOK";
                 String noOfResults=String.valueOf(returnRoutingTable.size());
                 String ip=node.getNodeAddress();
                 String port= String.valueOf(node.getNodeUdpPort());
 
-                String query= command+" "+ noOfResults+" "+ip+" "+port+" "+routingString;
-                String length = String.format("%04d", query.length() + 4);
-                query = length + " " + query;
-                InetAddress inetAddress = null;
-                try {
-                    inetAddress = InetAddress.getByName(msgObject.getPingIP());
-                } catch (UnknownHostException e) {
-                    e.printStackTrace();
-                }
-                UdpHelper.sendMessage(query, inetAddress, msgObject.getPingPort());
-                logger.info("PNGOK message sent to: SenderIP: {}, Port: {}",
+                    String query = command + " " + noOfResults + " " + ip + " " + port + " " + routingString;
+                    String length = String.format("%04d", query.length() + 4);
+                    query = length + " " + query;
+                    InetAddress inetAddress = null;
+                    try {
+                        inetAddress = InetAddress.getByName(msgObject.getPingIP());
+                    } catch (UnknownHostException e) {
+                        e.printStackTrace();
+                    }
+                    UdpHelper.sendMessage(query, inetAddress, msgObject.getPingPort());
+                    logger.info("PNGOK message sent to: SenderIP: {}, Port: {}",
                             msgObject.getPingIP(), msgObject.getPingPort());
                 }).start();
 
@@ -250,20 +246,22 @@ public class UdpServer implements CommandLineRunner {
                                 j.settTL(j.gettTL()+1);
                             }
                         }
-                        List<Neighbour> newNeighbours=new ArrayList<>();
-                        for (Neighbour i:msgObject.getRoutingList()) {
-                            int count=0;
-                            for (Neighbour j:node.getNeighbours()) {
-                                if(!i.getIpAddress().getHostName().equals(j.getIpAddress().getHostName())){
-                                    count+=1;
-                                }
-                            }
-                            if(count==node.getNeighbours().size()){
-                                newNeighbours.add(i);
-                                // todo potential neighbours list
-                            }
-
-                        }
+                    //}
+                    //List<Neighbour> newNeighbours=new ArrayList<>();
+                    //
+                    //for (Neighbour i:msgObject.getRoutingList()) {
+                    //    int count=0;
+                    //    for (Neighbour j:node.getNeighbours()) {
+                    //        if(!i.getAddress().getHostName().equals(j.getAddress().getHostName())){
+                    //            count+=1;
+                    //        }
+                    //    }
+                    //    if(count==node.getNeighbours().size()){
+                    //        newNeighbours.add(i);
+                    //        // todo potential neighbours list
+                    //    }
+                    //
+                    //}
 //                    newNeighbours; TODO subhashini this is the unique neighbours list you can call your function here and input this list as a paremeter
 
                 }).start();
@@ -279,7 +277,7 @@ public class UdpServer implements CommandLineRunner {
                                     neighbour.getIpAddress().getHostName(), neighbour.getUdpPort());
                             UdpHelper.sendMessage("0014 LEAVEOK 0", senderIP, senderPort);
                             List<Neighbour> leaversNeighbours = msgObject.getLeaversNeighbors();
-                            if (leaversNeighbours != null && leaversNeighbours.isEmpty() && node.getNeighbours().size()<4) {
+                            if (leaversNeighbours != null && leaversNeighbours.isEmpty() && node.getNeighbours().size() < 4) {
                                 logger.info("Trying to add neighbours sent by the node just left");
                                 node.join(leaversNeighbours);
                             }

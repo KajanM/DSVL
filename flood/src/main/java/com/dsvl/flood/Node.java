@@ -205,7 +205,7 @@ public class Node {
             for (Neighbour n : neighbours) {
 
                 String key = "PNG";
-                String myip = nodeAddress.toString();
+                String myip = nodeAddress.getHostAddress();
                 String myport = String.valueOf(nodeUdpPort);
                 int tTL = n.gettTL();
 

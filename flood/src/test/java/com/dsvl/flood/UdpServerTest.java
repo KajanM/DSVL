@@ -3,10 +3,9 @@ package com.dsvl.flood;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -46,5 +45,24 @@ public class UdpServerTest {
     @Test
     public void run1() {
 
+    }
+
+    @Test
+    public void getIpString() throws SocketException, UnknownHostException {
+        InetAddress address;
+        try (final DatagramSocket socket = new DatagramSocket()) {
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            address = socket.getLocalAddress();
+        }
+
+    }
+
+    @Test
+    public void testNullIteration() {
+        List<String> emptyList = new ArrayList<>();
+        for (String s :
+                emptyList) {
+            System.out.println("hello");
+        }
     }
 }
