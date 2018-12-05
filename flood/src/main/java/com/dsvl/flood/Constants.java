@@ -6,6 +6,6 @@ public class Constants {
         NOT_REGISTERED,
         REGISTERED,
         JOINED,
-        NOT_JOINED
+        UNREGISTERED_AND_DISCONNECTED
     }
 }

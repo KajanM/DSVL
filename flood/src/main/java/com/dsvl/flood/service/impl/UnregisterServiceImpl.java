@@ -3,10 +3,12 @@ package com.dsvl.flood.service.impl;
 import com.dsvl.flood.UdpHelper;
 import com.dsvl.flood.UdpMsgBuilder;
 import com.dsvl.flood.service.UnregisterService;
+import org.springframework.stereotype.Service;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 
+@Service
 public class UnregisterServiceImpl implements UnregisterService {
     @Override
     public Boolean unregister(InetAddress bootstrapAddress, int bootstrapServerPort,

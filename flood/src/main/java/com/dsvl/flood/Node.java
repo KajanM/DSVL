@@ -20,6 +20,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 
 import static com.dsvl.flood.Constants.Status.NOT_REGISTERED;
+import static com.dsvl.flood.Constants.Status.UNREGISTERED_AND_DISCONNECTED;
 
 
 /**
@@ -46,13 +47,13 @@ public class Node {
     private final int nodeTcpPort;
 
     /**
-     * {@code Boolean} value indicating if this {@code Nods} is registered
+     * {@code Boolean} value indicating if this {@code Node} is registered
      * with the bootstrap server or not.
      */
     private Boolean isRegistered = false;
 
     /**
-     * {@code Boolean} value indicating if this {@code Nods} is leaving the network.
+     * {@code Boolean} value indicating if this {@code Node} is leaving the network.
      */
     public volatile Boolean isLeaving = false;
 
@@ -302,8 +303,11 @@ public class Node {
         int tempUdpPort = SocketUtils.findAvailableUdpPort();
         UdpHelper.sendMessage("", nodeAddress, nodeUdpPort, tempUdpPort);
 
-        if (neighbours.isEmpty()) {
+        unregister();
+
+        if(neighbours.isEmpty()) {
             logger.info("I am the only node in the network. Leaving gracefully.");
+            status = UNREGISTERED_AND_DISCONNECTED;
             return true;
         }
         List<Neighbour> myNeighbours = new ArrayList<>();
@@ -323,8 +327,10 @@ public class Node {
         neighbours.clear();
         if (neighbours.size() == 0) {
             logger.info("Finished informing the neighbours. Leaving gracefully.");
+            status = UNREGISTERED_AND_DISCONNECTED;
             return true;
         }
+        status = UNREGISTERED_AND_DISCONNECTED;
         return false;
     }
 
