@@ -4,7 +4,6 @@ import com.dsvl.flood.exceptions.ErroneousResponseException;
 import com.dsvl.flood.model.Result;
 
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +81,6 @@ public final class MessageDecoder {
                 messageObject.setMsgType(SER);
 
                 try {
-                    Node.latestSearchResults.clear();
                     String ip = st.nextToken();
                     int port = Integer.parseInt(st.nextToken());
                     messageObject.setSearch_udp_Port(port);
@@ -106,14 +104,9 @@ public final class MessageDecoder {
                     Result result;
                     while (st.hasMoreTokens()) {
                         String fileName = st.nextToken();
-                        URI uri = new URI(
-                                "http",
-                                ip + ":" + tcp_port,
-                                "/file/download/" + fileName,
-                                null
-                        );
+                        String uri = "http://" + ip + ":" + tcp_port + "/file/" + fileName;
 
-                        result = new Result(fileName, uri.toString(), hops);
+                        result = new Result(fileName, uri, hops);
                         Node.latestSearchResults.add(result);
 
                     }
@@ -180,7 +173,7 @@ public final class MessageDecoder {
                     messageObject.setNo_of_results(Integer.parseInt(noOfResults));
                     List<Neighbour> neighboutList = new ArrayList<>();
 
-                    if (Integer.parseInt(noOfResults) == 0){
+                    if (Integer.parseInt(noOfResults) == 0) {
                         messageObject.setRoutingList(neighboutList);
                         return messageObject;
                     }

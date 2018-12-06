@@ -15,6 +15,8 @@ public class SearchController {
 
     @PostMapping("/search")
     public ResponseEntity search(@RequestBody String fileName) {
+        Node.latestSearchResults.clear();
+
         MessageObject messageObject = new MessageObject();
         messageObject.setFile_name(fileName);
         messageObject.setSearch_ip(node.getNodeAddress());
