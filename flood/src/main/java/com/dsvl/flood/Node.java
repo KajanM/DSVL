@@ -322,29 +322,27 @@ public class Node {
         }
     }
 
-    public boolean leaveNetwork() {
+    public void triggerLeave() {
         logger.info("Preparing to leave the network");
-
         this.isLeaving = true; //to break the ever running server while loop
+        try {                  //releasing the ever running udp port
+            UdpHelper.sendMessage("", InetAddress.getLocalHost(), nodeUdpPort);
+        } catch (UnknownHostException ignored) {}
+    }
 
-        //releasing the ever running udp port
-        int tempUdpPort = SocketUtils.findAvailableUdpPort();
-        UdpHelper.sendMessage("", nodeAddress, nodeUdpPort, tempUdpPort);
-
-        unregister();
-
+    public void leaveNetwork() {
         if(neighbours.isEmpty()) {
             logger.info("I am the only node in the network. Leaving gracefully.");
             status = UNREGISTERED_AND_DISCONNECTED;
-            return true;
+            return;
         }
         List<Neighbour> myNeighbours = new ArrayList<>();
         myNeighbours.addAll(neighbours);
-
+        int tempUdpPort = SocketUtils.findAvailableUdpPort();
         for (Neighbour neighbour : neighbours) {
             myNeighbours.remove(neighbour); //so the receiver address will not be added to the leave msg
             boolean leaveSuccessful = leaveService.leave(neighbour.getIpAddress(), neighbour.getUdpPort(),
-                    nodeAddress, nodeUdpPort, myNeighbours);
+                    nodeAddress, nodeUdpPort, tempUdpPort, myNeighbours);
             myNeighbours.add(neighbour);
             if (leaveSuccessful) {
                 logger.info("Informed neighbour {}:{} about leaving", neighbour.getIpAddress(), neighbour.getUdpPort());
@@ -356,15 +354,15 @@ public class Node {
         if (neighbours.size() == 0) {
             logger.info("Finished informing the neighbours. Leaving gracefully.");
             status = UNREGISTERED_AND_DISCONNECTED;
-            return true;
+            return;
         }
         status = UNREGISTERED_AND_DISCONNECTED;
-        return false;
     }
 
-    private boolean unregister() {
+    public boolean unregister() {
+        int tempUdpPort = SocketUtils.findAvailableUdpPort();
         boolean unregistered = unregisterService.unregister(bootstrapServerAddress, bootstrapServerPort,
-                nodeAddress, nodeUdpPort, name);
+                nodeAddress, nodeUdpPort, tempUdpPort, name);
         if(unregistered) {
             logger.info("Successfully unregistered from the bootstrap server");
             return true;

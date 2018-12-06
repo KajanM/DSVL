@@ -12,11 +12,11 @@ import java.net.InetAddress;
 public class UnregisterServiceImpl implements UnregisterService {
     @Override
     public Boolean unregister(InetAddress bootstrapAddress, int bootstrapServerPort,
-                              InetAddress nodeAddress, int nodeUdpPort, String username) {
+                              InetAddress nodeAddress, int nodeUdpPort, int tempUdpPort, String username) {
         //send and receive - to stay synced with the bootstrap server
         String unregMsg = UdpMsgBuilder.buildUnregisterMsg(nodeAddress.getHostAddress(), nodeUdpPort, username);
         DatagramPacket responsePacket =  UdpHelper.sendAndReceiveMessage(unregMsg, bootstrapAddress, bootstrapServerPort,
-                nodeUdpPort, 2000);
+                tempUdpPort, 2000);
 
         //process response
         if (responsePacket.getAddress() == null) { // no response from bootstrap server
