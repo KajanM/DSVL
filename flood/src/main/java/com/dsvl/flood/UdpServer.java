@@ -106,7 +106,7 @@ public class UdpServer implements CommandLineRunner {
                     logger.info("Received UDP message from {}:{} {}", incomingPacket.getAddress().getHostAddress(), incomingPacket.getPort(), receivedData);
                     try {
                         MessageObject msgObject = MessageDecoder.decode(incomingPacket.getData(), incomingPacket.getLength());
-                        msgObject.setSenderIP(String.valueOf(incomingPacket.getAddress()));
+                        msgObject.setSenderIP(incomingPacket.getAddress().getHostAddress());
                         msgObject.setSenderPort(incomingPacket.getPort());
                         respond(msgObject, incomingPacket.getAddress(), incomingPacket.getPort());
                     } catch (ErroneousResponseException e) {

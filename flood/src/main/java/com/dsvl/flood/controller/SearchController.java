@@ -1,25 +1,28 @@
 package com.dsvl.flood.controller;
 
+import com.dsvl.flood.MessageObject;
 import com.dsvl.flood.Node;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
-@RequestMapping("/search")
 public class SearchController {
 
     private Node node;
 
-    // TODO: kasthuri, convert this to post mapping
-    @GetMapping("/{file-name}")
-//    public String search(@PathVariable(value = "file-name") String fileName,int hops, Model model) {
-//        model.addAttribute("results", node.search(fileName,hops));
-//        return "results";
-//    }
+    @PostMapping("/search")
+    public ResponseEntity search(@RequestBody String fileName) {
+        MessageObject messageObject = new MessageObject();
+        messageObject.setFile_name(fileName);
+        messageObject.setSearch_ip(node.getNodeAddress());
+        messageObject.setSearch_udp_Port(node.getNodeUdpPort());
+        messageObject.setHops(5);
+        node.search(messageObject);
+        return ResponseEntity.ok().build();
+    }
 
     @Autowired
     public void setNode(Node node) {

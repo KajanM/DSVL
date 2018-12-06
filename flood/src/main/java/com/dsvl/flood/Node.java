@@ -1,6 +1,7 @@
 package com.dsvl.flood;
 
 import com.dsvl.flood.Constants.Status;
+import com.dsvl.flood.model.Result;
 import com.dsvl.flood.service.JoinService;
 import com.dsvl.flood.service.LeaveService;
 import com.dsvl.flood.service.RegisterService;
@@ -43,6 +44,9 @@ public class Node {
     private static final Logger logger = LoggerFactory.getLogger(Node.class);
 
     private final int bootstrapServerPort;
+    /**
+     * Node's listening UDP port
+     */
     private final int nodeUdpPort;
     private final String name;
     private final int nodeTcpPort;
@@ -85,7 +89,7 @@ public class Node {
      */
     private static volatile List<Neighbour> neighbours;
     private static Map<Integer, HashSet> map;
-    public static ArrayList<String> latestSearchResults;
+    public static ArrayList<Result> latestSearchResults;
 
     /**
      * Used to update UI
@@ -244,8 +248,17 @@ public class Node {
     }
 
     public List<File> search(MessageObject msgObject) {
-        msgObject.setHops(msgObject.getHops() - 1);
         List<File> results = searchInLocalStore(msgObject.getFile_name());
+        //TODO: get fixed hop count from property file
+        //if (nodeAddress.equals(msgObject.getSearch_ip()) && getNodeUdpPort() == msgObject.getSearch_udp_Port()) {
+        //    results.forEach(file -> {
+        //        Result result = new Result(file.getFileName(), getNodeAddress() + ":" + getTcpPort() + "/file/" + file.getFileName(), msgObject.getHops());
+        //
+        //        Node.latestSearchResults.add(result);
+        //    });
+        //}
+
+        msgObject.setHops(msgObject.getHops() - 1);
 
         if (msgObject.getHops() > 0) {
             try {
@@ -377,6 +390,10 @@ public class Node {
         this.status = status;
     }
 
+    /**
+     * Returns the IP Address of the current Node
+     * @return
+     */
     public String getNodeAddress() {
         return nodeAddress.getHostAddress();
     }
@@ -395,6 +412,7 @@ public class Node {
 
     public void addFile(File file) {
         files.add(file);
+        update_table();
     }
 
     public void deleteFile(File file) {
