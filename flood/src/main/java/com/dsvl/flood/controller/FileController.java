@@ -101,7 +101,7 @@ public class FileController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentLength(body.contentLength())
-                .contentType(MediaType.TEXT_XML)
+                .contentType(MediaType.TEXT_PLAIN)
                 .body(body);
     }
 
