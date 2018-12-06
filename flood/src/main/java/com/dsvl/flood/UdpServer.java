@@ -209,7 +209,7 @@ public class UdpServer implements CommandLineRunner {
                     List<Neighbour> returnRoutingTable = new ArrayList<>();
 
                 for (Neighbour n: routingTable ) {
-                    if (!n.getIpAddress().toString().equals(msgObject.getSenderIP().toString())) { //overrride neighbours equals method
+                    if (!n.getIpAddress().getHostName().equals(msgObject.getSenderIP())) {
                         returnRoutingTable.add(n); // add all except message querried node
                     }
                 }
@@ -247,21 +247,21 @@ public class UdpServer implements CommandLineRunner {
                             }
                         }
                     //}
-                    //List<Neighbour> newNeighbours=new ArrayList<>();
+                    List<Neighbour> newNeighbours=new ArrayList<>();
                     //
-                    //for (Neighbour i:msgObject.getRoutingList()) {
-                    //    int count=0;
-                    //    for (Neighbour j:node.getNeighbours()) {
-                    //        if(!i.getAddress().getHostName().equals(j.getAddress().getHostName())){
-                    //            count+=1;
-                    //        }
-                    //    }
-                    //    if(count==node.getNeighbours().size()){
-                    //        newNeighbours.add(i);
-                    //        // todo potential neighbours list
-                    //    }
-                    //
-                    //}
+                    for (Neighbour i:msgObject.getRoutingList()) {
+                        int count=0;
+                        for (Neighbour j:node.getNeighbours()) {
+                            if(!i.getIpAddress().getHostName().equals(j.getIpAddress().getHostName())){
+                                count+=1;
+                            }
+                        }
+                        if(count==node.getNeighbours().size()){
+                            newNeighbours.add(i);
+                            // todo potential neighbours list
+                        }
+
+                    }
 //                    newNeighbours; TODO subhashini this is the unique neighbours list you can call your function here and input this list as a paremeter
 
                 }).start();

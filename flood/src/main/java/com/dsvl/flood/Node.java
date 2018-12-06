@@ -77,7 +77,7 @@ public class Node {
     /**
      * List of files that this {@code Node} has
      */
-    private final List<File> files;
+    private List<File> files;
 
     /**
      * List of neighbours that exists in the network but this {@code Node} has not directly connected to
@@ -239,7 +239,7 @@ public class Node {
             }
 
             try {
-                Thread.sleep(3000000); // Waits for 5 minutes
+                Thread.sleep(30000); // Waits for 30 seconds
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -299,6 +299,15 @@ public class Node {
     }
 
     private void update_table() {
+
+        ArrayList<File> uniquefiles = new ArrayList<File>();// unique
+        for (File file : files) {
+            if (!uniquefiles.contains(file)) {
+                uniquefiles.add(file);
+            }
+        }
+        this.files=uniquefiles;
+
         map = new HashMap<Integer, HashSet>();
         for (int i = 0; i < files.size(); i++) {
             Set<String> myset = new HashSet<>();
