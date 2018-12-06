@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.FileWriter;
@@ -26,6 +27,7 @@ public class FileController {
 
     private Node node;
     private LogRepository logRepository;
+    private RestTemplate restTemplate;
 
     @GetMapping("/files")
     public List<File> getFiles() {
@@ -72,28 +74,32 @@ public class FileController {
     }
 
     @GetMapping("/file/{fileName}")
-    public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable(value = "fileName") String fileName, HttpServletRequest httpServletRequest) throws IOException {
+    public ByteArrayResource downloadFile(@PathVariable(value = "fileName") String fileName, HttpServletRequest httpServletRequest) throws IOException {
+        String name = fileName + ".txt";
         Log dbLog = new Log(
                 httpServletRequest.getRemoteAddr() + ":" + httpServletRequest.getRemotePort(),
-                "this", "TCP", "get file " + fileName
+                "this", "TCP", "get file " + name
         );
         logRepository.save(dbLog);
 
-        String toWrite = "This is a temporary file created on the fly: " + fileName;
+        String toWrite = "This is a temporary file created on the fly: " + name;
         java.io.File tmpFile = java.io.File.createTempFile(fileName, ".txt");
         FileWriter writer = new FileWriter(tmpFile);
         writer.write(toWrite);
         writer.close();
 
         Path path = Paths.get(tmpFile.getAbsolutePath());
-        ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
+        return new ByteArrayResource(Files.readAllBytes(path));
+    }
 
+    @PostMapping("/download")
+    public ResponseEntity<ByteArrayResource> downloadFile(@RequestBody String url) {
+        ByteArrayResource body = restTemplate.getForEntity(url, ByteArrayResource.class).getBody();
         HttpHeaders headers = new HttpHeaders();
         return ResponseEntity.ok()
                 .headers(headers)
-                .contentLength(tmpFile.length())
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .body(resource);
+                .contentType(MediaType.TEXT_XML)
+                .body(body);
     }
 
     @Autowired
@@ -104,5 +110,10 @@ public class FileController {
     @Autowired
     public void setLogRepository(LogRepository logRepository) {
         this.logRepository = logRepository;
+    }
+
+    @Autowired
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
     }
 }
