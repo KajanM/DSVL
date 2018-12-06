@@ -143,11 +143,11 @@ public class Node {
     }
 
     private void initializeFiles() {
-        files.add(new File("Lord of the Rings"));
-        files.add(new File("Adventures of Tintin"));
-        files.add(new File("Hacking for Dummies"));
-        files.add(new File("Super Mario"));
-        files.add(new File("Super Mario 2"));
+        files.add(new File("Lord_of_the_Rings"));
+        files.add(new File("Adventures_of_Tintin"));
+        files.add(new File("Hacking_for_Dummies"));
+        files.add(new File("Super_Mario"));
+        files.add(new File("Super_Mario_2"));
     }
 
     public boolean register() {
