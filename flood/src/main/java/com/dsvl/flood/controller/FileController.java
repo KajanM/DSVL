@@ -94,6 +94,8 @@ public class FileController {
 
     @PostMapping("/download")
     public ResponseEntity<ByteArrayResource> downloadFile(@RequestBody String url) {
+        Log dbLog = new Log("this", url, "TCP", "download request");
+        logRepository.save(dbLog);
         ByteArrayResource body = restTemplate.getForEntity(url, ByteArrayResource.class).getBody();
         HttpHeaders headers = new HttpHeaders();
         return ResponseEntity.ok()
