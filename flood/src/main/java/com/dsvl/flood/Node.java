@@ -239,7 +239,7 @@ public class Node {
             }
 
             try {
-                Thread.sleep(3000000); // Waits for 5 minutes
+                Thread.sleep(30000); // Waits for 30 seconds
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
