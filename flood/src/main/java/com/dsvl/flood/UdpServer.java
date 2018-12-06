@@ -159,7 +159,7 @@ public class UdpServer implements CommandLineRunner {
 
                         List<File> search_results = node.search(msgObject);
                         String file_name_string = "";
-                        String query = "SEROK" + " " + String.valueOf(search_results.size()) + " " + String.valueOf(node.getNodeAddress()) + " " + String.valueOf(node.getTcpPort()) + " " + String.valueOf(msgObject.getHops()) + " ";
+                        String query = "SEROK" + " " + search_results.size() + " " + node.getNodeAddress() + " " + node.getTcpPort() + " " + msgObject.getHops() + " ";
                         for (int i = 0; i < search_results.size(); i++) {
                             String fn = search_results.get(i).getFileName();
                             fn = fn.replaceAll(" ", "_");
@@ -196,7 +196,7 @@ public class UdpServer implements CommandLineRunner {
                 } else if (msgObject.getNo_of_results() == 9998) {
                     logger.info("Search response has recieved:  some other error");
                 } else {
-                    logger.info("Search response has recieved  Number of results: {}, hops {}, IP address: {}, TCPport: {}",
+                    logger.info("Search response has received  Number of results: {}, hops {}, IP address: {}, TCPport: {}",
                             msgObject.getNo_of_results(), msgObject.getHops(), msgObject.getSearch_result_ip(), msgObject.getSearch_result_tcp_Port());
                     // creating the tcp connection and file transfering
                 }

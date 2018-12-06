@@ -11,13 +11,12 @@ import java.util.List;
 public class SearchServiceImpl implements SearchService {
 
     @Override
-    public List<File> search(MessageObject msgObject, List<Neighbour> neighbours, InetAddress nodeAddress, Integer nodeUdpPort) {
+    public void search(MessageObject msgObject, List<Neighbour> neighbours, InetAddress nodeAddress, Integer nodeUdpPort) {
         String searchMsg = UdpMsgBuilder.buildSearchMsg(msgObject.getSearch_ip(), msgObject.getSearch_udp_Port(), msgObject.getFile_name(), msgObject.getHops());
         for (int i = 0; i < neighbours.size(); i++) {
             if (!(neighbours.get(i).getIpAddress().getHostAddress().equals(msgObject.getSenderIP()))){
                 UdpHelper.sendMessage(searchMsg, neighbours.get(i).getIpAddress(), neighbours.get(i).getUdpPort());
             }
         }
-    return null;
     }
 }

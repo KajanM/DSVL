@@ -89,7 +89,7 @@ public class Node {
      */
     private static volatile List<Neighbour> neighbours;
     private static Map<Integer, HashSet> map;
-    public static ArrayList<Result> latestSearchResults;
+    public static volatile ArrayList<Result> latestSearchResults;
 
     /**
      * Used to update UI
