@@ -1,38 +1,15 @@
 package com.dsvl.flood.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Result {
     private String fileName;
     private String url;
+    private int hopCount;
 
-    public Result() {
-    }
-
-    public Result(String fileName, String url) {
-        this.fileName = fileName;
-        this.url = url;
-    }
-
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    @Override
-    public String toString() {
-        return "Result{" +
-                "fileName='" + fileName + '\'' +
-                ", url='" + url + '\'' +
-                '}';
-    }
 }
