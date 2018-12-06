@@ -31,14 +31,14 @@ public class File {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof File)) return false;
         File file = (File) o;
-        return fileSize == file.fileSize &&
-                fileName.equals(file.fileName);
+        return getFileName().equals(file.getFileName());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fileName, fileSize);
+        return Objects.hash(getFileName());
     }
+
 }
