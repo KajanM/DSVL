@@ -114,6 +114,11 @@ public class UdpServer implements CommandLineRunner {
                     }
                 }
             }
+            //unregister from the bootstrap server
+            node.unregister();
+
+            //send leave messages to all neighbours and leave the network
+            node.leaveNetwork();
         } catch (SocketException e) {
             logger.error("Unable to open UDP socket for receiving", e);
         } catch (IOException e) {
@@ -187,10 +192,7 @@ public class UdpServer implements CommandLineRunner {
                         UdpHelper.sendMessage(query, inetAddress, msgObject.getSearch_udp_Port());
                     }
                 }).start();
-
             case "SEROK":
-
-
                 if (msgObject.getNo_of_results() == 9999) {
                     logger.info("Search response has recieved:  failure due to node unreachable");
                 } else if (msgObject.getNo_of_results() == 9998) {
@@ -200,7 +202,6 @@ public class UdpServer implements CommandLineRunner {
                             msgObject.getNo_of_results(), msgObject.getHops(), msgObject.getSearch_result_ip(), msgObject.getSearch_result_tcp_Port());
                     // creating the tcp connection and file transfering
                 }
-
             case "PNG":
                 new Thread(() -> { // ping is done within a seperete thread
                     logger.info("PNG message recieved: SenderIP: {}, Port: {}",

@@ -12,7 +12,7 @@ public class LeaveController {
 
     @PostMapping("/leave")
     public ResponseEntity<?> leave() {
-        node.leaveNetwork();
+        node.triggerLeave();
         return ResponseEntity.ok().build();
     }
 
