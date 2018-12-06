@@ -168,8 +168,7 @@ public class UdpServer implements CommandLineRunner {
                         query += file_name_string;
                         String length = String.format("%04d", query.length() + 4);
                         query = length + " " + query;
-//                    System.out.println(query);
-//                    System.out.println(senderIP);
+
                         InetAddress inetAddress = InetAddress.getByName(msgObject.getSearch_ip());
                         UdpHelper.sendMessage(query, inetAddress, msgObject.getSearch_udp_Port());
                     } catch (Exception e) {

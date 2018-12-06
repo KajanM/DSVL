@@ -15,6 +15,7 @@ public class SearchController {
 
     @PostMapping("/search")
     public ResponseEntity search(@RequestBody String fileName) {
+        Node.forwardedQueries.clear();
         Node.latestSearchResults.clear();
 
         MessageObject messageObject = new MessageObject();
@@ -23,6 +24,7 @@ public class SearchController {
         messageObject.setSearch_udp_Port(node.getNodeUdpPort());
         messageObject.setHops(5);
         node.search(messageObject);
+
         return ResponseEntity.ok().build();
     }
 

@@ -1,6 +1,7 @@
 package com.dsvl.flood;
 
 import com.dsvl.flood.Constants.Status;
+import com.dsvl.flood.model.ForwardedQuery;
 import com.dsvl.flood.model.Result;
 import com.dsvl.flood.service.JoinService;
 import com.dsvl.flood.service.LeaveService;
@@ -90,6 +91,7 @@ public class Node {
     private static volatile List<Neighbour> neighbours;
     private static Map<Integer, HashSet> map;
     public static volatile ArrayList<Result> latestSearchResults;
+    public static volatile List<ForwardedQuery> forwardedQueries;
 
     /**
      * Used to update UI
@@ -137,7 +139,7 @@ public class Node {
         existingNodes = new ArrayList<>();
         neighbours = new ArrayList<>();
         status = NOT_REGISTERED;
-
+        forwardedQueries = new ArrayList<>();
     }
 
     private void initializeFiles() {
@@ -239,7 +241,7 @@ public class Node {
             }
 
             try {
-                Thread.sleep(30000); // Waits for 30 seconds
+                Thread.sleep(1200000); // Waits for 2 minutes
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
