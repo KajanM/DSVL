@@ -13,10 +13,10 @@ public class LeaveServiceImpl implements LeaveService {
 
     @Override
     public Boolean leave(InetAddress neighbourAddress, Integer neighbourPort,
-                         InetAddress nodeAddress, Integer nodeUdpPort, List<Neighbour> myNeighbours) {
+                         InetAddress nodeAddress, Integer nodeUdpPort, int tempUdpPort, List<Neighbour> myNeighbours) {
         String leaveMsg = UdpMsgBuilder.buildLeaveMsg(nodeAddress.getHostAddress(), nodeUdpPort, myNeighbours);
         DatagramPacket responsePacket = UdpHelper.sendAndReceiveMessage(leaveMsg, neighbourAddress, neighbourPort,
-                nodeUdpPort, 5000);
+                tempUdpPort, 5000);
         if (responsePacket.getAddress() == null) { // no response from peer
             return false;
         }

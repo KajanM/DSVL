@@ -12,8 +12,9 @@ public interface LeaveService {
      * @param neighbourPort    neighbour's port
      * @param nodeAddress my ip
      * @param nodePort my udpPort
+     * @param tempUdpPort
      * @param myNeighbours my neighbours
      */
     Boolean leave(InetAddress neighbourAddress, Integer neighbourPort,
-                  InetAddress nodeAddress, Integer nodePort, List<Neighbour> myNeighbours);
+                  InetAddress nodeAddress, Integer nodePort, int tempUdpPort, List<Neighbour> myNeighbours);
 }

@@ -323,9 +323,8 @@ public class Node {
     public void triggerLeave() {
         logger.info("Preparing to leave the network");
         this.isLeaving = true; //to break the ever running server while loop
-        int tempUdpPort = SocketUtils.findAvailableUdpPort();
         try {                  //releasing the ever running udp port
-            UdpHelper.sendMessage("", InetAddress.getLocalHost(), nodeUdpPort, tempUdpPort);
+            UdpHelper.sendMessage("", InetAddress.getLocalHost(), nodeUdpPort);
         } catch (UnknownHostException ignored) {}
     }
 
@@ -337,10 +336,11 @@ public class Node {
         }
         List<Neighbour> myNeighbours = new ArrayList<>();
         myNeighbours.addAll(neighbours);
+        int tempUdpPort = SocketUtils.findAvailableUdpPort();
         for (Neighbour neighbour : neighbours) {
             myNeighbours.remove(neighbour); //so the receiver address will not be added to the leave msg
             boolean leaveSuccessful = leaveService.leave(neighbour.getIpAddress(), neighbour.getUdpPort(),
-                    nodeAddress, nodeUdpPort, myNeighbours);
+                    nodeAddress, nodeUdpPort, tempUdpPort, myNeighbours);
             myNeighbours.add(neighbour);
             if (leaveSuccessful) {
                 logger.info("Informed neighbour {}:{} about leaving", neighbour.getIpAddress(), neighbour.getUdpPort());
@@ -358,8 +358,9 @@ public class Node {
     }
 
     public boolean unregister() {
+        int tempUdpPort = SocketUtils.findAvailableUdpPort();
         boolean unregistered = unregisterService.unregister(bootstrapServerAddress, bootstrapServerPort,
-                nodeAddress, nodeUdpPort, name);
+                nodeAddress, nodeUdpPort, tempUdpPort, name);
         if(unregistered) {
             logger.info("Successfully unregistered from the bootstrap server");
             return true;

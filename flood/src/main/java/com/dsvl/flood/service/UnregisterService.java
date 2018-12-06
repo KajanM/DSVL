@@ -11,9 +11,10 @@ public interface UnregisterService {
      * @param bootstrapServerPort  - bootstrap server port
      * @param nodeAddress          - this node address
      * @param nodeUdpPort          - this node's udp port
+     * @param tempUdpPort
      * @param username             - username of this p2p network
      * @return  whether the registration is successful or not
      */
     Boolean unregister(InetAddress bootstrapAddress, int bootstrapServerPort,
-                     InetAddress nodeAddress, int nodeUdpPort, String username);
+                       InetAddress nodeAddress, int nodeUdpPort, int tempUdpPort, String username);
 }
