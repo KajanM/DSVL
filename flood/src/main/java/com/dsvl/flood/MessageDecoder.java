@@ -106,7 +106,7 @@ public final class MessageDecoder {
                         String fileName = st.nextToken();
                         String uri = "http://" + ip + ":" + tcp_port + "/file/" + fileName;
 
-                        result = new Result(fileName, uri, hops);
+                        result = new Result(fileName.replaceAll("_", " "), uri, hops);
                         Node.latestSearchResults.add(result);
 
                     }

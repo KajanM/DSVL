@@ -100,6 +100,7 @@ public class FileController {
         HttpHeaders headers = new HttpHeaders();
         return ResponseEntity.ok()
                 .headers(headers)
+                .contentLength(body.contentLength())
                 .contentType(MediaType.TEXT_XML)
                 .body(body);
     }
