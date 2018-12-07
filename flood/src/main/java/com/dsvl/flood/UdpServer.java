@@ -256,13 +256,13 @@ public class UdpServer implements CommandLineRunner {
                                 count+=1;
                             }
                         }
-                        if(count==node.getNeighbours().size()){
+                        if(count==node.getNeighbours().size() && !i.getIpAddress().getHostName().equals(node.getNodeAddress())){
                             newNeighbours.add(i);
-                            // todo potential neighbours list
+                            //  potential neighbours list
                         }
 
                     }
-//                    newNeighbours; TODO subhashini this is the unique neighbours list you can call your function here and input this list as a paremeter
+                    node.join(newNeighbours); // send requests to new neighbours
 
                 }).start();
                 break;

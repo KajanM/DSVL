@@ -252,14 +252,6 @@ public class Node {
     public List<File> search(MessageObject msgObject) {
         List<File> results = searchInLocalStore(msgObject.getFile_name());
         //TODO: get fixed hop count from property file
-        //if (nodeAddress.equals(msgObject.getSearch_ip()) && getNodeUdpPort() == msgObject.getSearch_udp_Port()) {
-        //    results.forEach(file -> {
-        //        Result result = new Result(file.getFileName(), getNodeAddress() + ":" + getTcpPort() + "/file/" + file.getFileName(), msgObject.getHops());
-        //
-        //        Node.latestSearchResults.add(result);
-        //    });
-        //}
-
         msgObject.setHops(msgObject.getHops() - 1);
 
         if (msgObject.getHops() > 0) {
